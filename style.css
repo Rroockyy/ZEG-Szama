@@ -1,0 +1,25 @@
+header, footer, a:link, a:visited{
+    color: white;
+    text-decoration: none;
+}
+
+a:hover{
+    color: red;
+}
+
+body{
+    margin: 0;
+}
+
+header{
+    background-color: #005757;
+    min-height: 80px;
+}
+
+footer{
+    background-color: #005757;
+}
+
+header > a > img{
+    height: 75px;
+}
