@@ -16,8 +16,25 @@
         <a href="" class="ms-auto">Logowanie</a>
         <a href="signIn.html" class="m-3" id="SignInBtn">Rejestracja</a>
     </header>
-    <main class="d-flex justify-content-center align-items-center flex-column">
-        <h1 class="m-3">Zegowskie Super Hity</h1>
+    <main class="d-flex justify-content-center align-items-center flex-md-row flex-column">
+        <div id="SignIn" class="m-5">
+            <form action="#" method="post" class="d-flex justify-content-center align-items-center flex-column">
+                <h2>Rejestracja</h2>
+                <label for="SignInName">Nazwa Konta</label><input type="text" id="SignInName">
+                <label for="SignInEmail">E-mail</label><input type="email" id="SignInEmail">
+                <label for="SignInTel">Numer Telefonu</label><input type="tel" id="SignInTel" pattern="[0-9]{9}">
+                <label for="SignInPass">Hasło</label><input type="password" id="SignInPass">
+                <input type="submit" value="Utwórz konto" id="CreateAccountBtn">
+                <sub>Masz już konto? <a href="" id="LogInAccExistHref">Zaloguj się</a></sub>
+            </form>
+        </div>
+        <div class="m-5">
+            <h1>Zamawiaj szybciej z kontem ZEG SZAMA!</h1>
+            <ul>
+                <li>Zapisz ostatnie zamówienia</li>
+                <li>Otrzymuj dostęp do rabatów i promocji</li>
+            </ul>
+        </div>
     </main>
     <footer class="fixed-bottom d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
