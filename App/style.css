@@ -1,0 +1,83 @@
+header, footer, a:link, a:visited{
+    color: white;
+    text-decoration: none;
+}
+
+a:hover{
+    color: rgb(0, 0, 0);
+}
+
+body{
+    margin: 0;
+}
+
+header{
+    background-color: #E01721;
+    min-height: 80px;
+}
+
+footer{
+    background-color: #E01721;
+}
+
+header > a > img{
+    height: 75px;
+}
+
+#SignInBtn{
+    border-left: white 1px solid;
+    padding-left: 12px;
+}
+
+#SignIn, #LogIn{
+    padding: 20px;
+    background-color: rgb(245, 245, 245);
+    box-shadow: 5px 5px 15px 5px rgb(197, 197, 197);
+    border-radius: 5%;
+}
+
+#LogIn{
+    min-height: 350px;
+    min-width: 300px;
+}
+
+#LogInAccExistHref, #ForgotPass{
+    color: red;
+    
+}
+
+#LogInAccExistHref:hover, #ForgotPass:hover{
+    color: black;
+}
+
+#CreateAccountBtn, #LogInBtn{
+    background-color: rgb(255, 134, 134);
+    color: white;
+    border: red solid;
+    border-radius: 10px;
+    margin: 10px;
+    width: 75%;
+    height: 40px;
+}
+
+#CreateAccountBtn:hover, #LogInBtn:hover{
+    box-shadow: black 2px 2px;
+    top: -2px;
+    left: -2px;
+}
+
+#zeg-background{
+    position: absolute;
+    z-index: -1;
+    height: 80vh;
+    opacity: 0.3;
+    filter: blur(3px);
+}
+
+#RememberPass{
+    margin-right: 5px;
+}
+
+#LogInEmail, #LogInPass{
+    width: 100%;
+}
