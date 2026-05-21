@@ -1,4 +1,5 @@
 <?php
+$conn = mysqli_connect("localhost", "root", "", "szama");
 session_start();
 ?>
 
@@ -30,6 +31,49 @@ session_start();
         ?>
     </header>
     <main class="flex-grow-1 d-flex align-items-center flex-column">
+        <div class="d-flex justify-content-around w-100 mt-3">
+            <?php
+                $query = "SELECT typy_produktow.typ, produkty.zdjecie FROM typy_produktow JOIN produkty ON typy_produktow.id = produkty.typ WHERE produkty.zdjecie LIKE '_1.jpg' ORDER BY typy_produktow.id ASC";
+                $types = mysqli_query($conn, $query);
+                while($row = mysqli_fetch_array($types)) {
+                    echo "<a href='#type-$row[typ]'><div class='itemsType d-flex flex-column align-items-center'>";
+                    echo "<img src='src/$row[zdjecie]' alt='$row[typ]' class='w-100'>";
+                    echo "$row[typ]";
+                    echo "</div></a>";
+                }
+            ?>
+        </div>
+        <div>
+            <?php
+                $query = "SELECT id, typ FROM typy_produktow ORDER BY id ASC";
+                $pages = mysqli_query($conn, $query);
+                while($row = mysqli_fetch_array($pages)) {
+                    echo "<hr class='vw-100'>";
+                    echo "<div id='type-$row[typ]' class='m-4'>";
+                    echo "<h2>$row[typ]</h2>";
+
+                        $query2 = "SELECT zdjecie, nazwa, cena FROM produkty WHERE typ = $row[id] ORDER BY id ASC";
+                        $products = mysqli_query($conn, $query2);
+                        while($row2 = mysqli_fetch_array($products)) {
+                            echo "<div class='productBox";
+                            if(($row2['zdjecie'])[1] == "1") {
+                                echo " bestSeller'>";
+                                echo "<h3>Best Seller!</h3>";
+                            }
+                            else {
+                                echo "'>";
+                            }
+                            echo "<img src='src/$row2[zdjecie]' alt='$row2[nazwa]' class='w-50'>";
+                            echo "<span>$row2[nazwa]</span>";
+                            echo "<span>$row2[cena]zł</span>";
+                            echo "<button class='addToCartBtn'>Dodaj do koszyka</button>";
+                            echo "</div>";
+                        }
+
+                    echo "</div>";
+                }
+            ?>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.0
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Czas generowania: 13 Kwi 2026, 15:53
--- Wersja serwera: 10.4.27-MariaDB
--- Wersja PHP: 8.1.12
+-- Generation Time: Maj 21, 2026 at 10:05 PM
+-- Wersja serwera: 10.4.32-MariaDB
+-- Wersja PHP: 8.0.30
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Baza danych: `zegowska_szama`
+-- Database: `szama`
 --
 
 -- --------------------------------------------------------
@@ -32,6 +32,14 @@ CREATE TABLE `dostep` (
   `dostep` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `dostep`
+--
+
+INSERT INTO `dostep` (`id`, `dostep`) VALUES
+(2, 'administrator'),
+(1, 'użytkownik');
+
 -- --------------------------------------------------------
 
 --
@@ -43,8 +51,43 @@ CREATE TABLE `produkty` (
   `nazwa` varchar(30) NOT NULL,
   `skład` text NOT NULL,
   `cena` float NOT NULL,
-  `typ` int(11) NOT NULL
+  `typ` int(11) NOT NULL,
+  `zdjecie` varchar(25) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `produkty`
+--
+
+INSERT INTO `produkty` (`id`, `nazwa`, `skład`, `cena`, `typ`, `zdjecie`) VALUES
+(3, 'Buła Gołosza', '', 6, 1, 'b1.jpg'),
+(4, 'Bułka Ser', '', 3, 1, 'b2.jpg'),
+(5, 'Bułka Szynka', '', 3, 1, 'b3.jpg'),
+(6, 'Bułka Szynka Ser', '', 4, 1, 'b4.jpg'),
+(7, 'Bułka Sos', '', 3, 1, 'b5.jpg'),
+(8, 'Bułka Masło', '', 2, 1, 'b6.jpg'),
+(9, 'Bułka Sucha', '', 1.5, 1, 'b7.jpg'),
+(10, 'Bułka Ciemna', '', 0, 1, 'b8.jpg'),
+(11, 'Hot-Dog', '', 6, 2, 'h1.jpg'),
+(12, 'Double-Dog', '', 8, 2, 'h2.jpg'),
+(13, 'Tost Ser', '', 2.5, 3, 't1.jpg'),
+(14, 'Tost Szynka', '', 2.5, 3, 't2.jpg'),
+(15, 'Tost Masło', '', 1.5, 3, 't3.jpg'),
+(16, 'Tost Ser Szynka', '', 4, 3, 't4.jpg'),
+(17, 'Tymbark Karton 1L', '', 4.5, 4, 'n1.jpg'),
+(18, 'Woda Gaz/N-gaz', '', 2.5, 4, 'n2.jpg'),
+(19, 'Tymbark 2L', '', 5, 4, 'n3.jpg'),
+(20, 'Tymbark Szkło 0,25L', '', 2.5, 4, 'n4.jpg'),
+(21, 'Tymbark Plastik 0,5L', '', 3, 4, 'n5.jpg'),
+(22, 'Herbata', '', 2.5, 4, 'n6.jpg'),
+(23, 'Espresso', '', 1.5, 6, 'k1.jpg'),
+(24, 'Espresso Macchiato', '', 2.5, 6, 'k2.jpg'),
+(25, 'Kawa Czarna', '', 2, 6, 'k3.jpg'),
+(26, 'Kawa Biała', '', 2.5, 6, 'k4.jpg'),
+(27, 'Cappuccino', '', 3.5, 6, 'k5.jpg'),
+(28, 'Late Macchiato', '', 3.5, 6, 'k6.jpg'),
+(29, 'Double Shot Espresso', '', 1.5, 6, 'k7.jpg'),
+(30, 'BBQ', '', 1, 5, 's1.jpg');
 
 -- --------------------------------------------------------
 
@@ -58,7 +101,7 @@ CREATE TABLE `status_zamowienia` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `status_zamowienia`
+-- Dumping data for table `status_zamowienia`
 --
 
 INSERT INTO `status_zamowienia` (`id`, `status`) VALUES
@@ -78,14 +121,15 @@ CREATE TABLE `typy_produktow` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
--- Zrzut danych tabeli `typy_produktow`
+-- Dumping data for table `typy_produktow`
 --
 
 INSERT INTO `typy_produktow` (`id`, `typ`) VALUES
 (1, 'buła'),
-(5, 'dodatek'),
 (2, 'hot-dog'),
+(6, 'kawa'),
 (4, 'napój'),
+(5, 'sos'),
 (3, 'tost');
 
 -- --------------------------------------------------------
@@ -97,10 +141,20 @@ INSERT INTO `typy_produktow` (`id`, `typ`) VALUES
 CREATE TABLE `uzytkownicy` (
   `id` int(11) NOT NULL,
   `nazwa_uzytkownika` varchar(25) NOT NULL,
+  `Email` varchar(35) DEFAULT NULL,
   `haslo` varchar(50) NOT NULL,
   `dostep` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `uzytkownicy`
+--
+
+INSERT INTO `uzytkownicy` (`id`, `nazwa_uzytkownika`, `Email`, `haslo`, `dostep`, `status`) VALUES
+(1, 'admin', NULL, 'maslo', 2, 1),
+(2, 'Rogalik', 'jan@firma.pl', '$2y$10$6H/meIRImm.d7TaibXbJMu7HKqwsVsxVhKQ2lIkscmy', 1, 1),
+(3, 'Rogalik2', 'rogal@gmail.pl', '$2y$10$MTg8j7g7P94Ph28PnMxtmuAY5xub2X/g6mBRwU1UGN7', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -192,76 +246,76 @@ ALTER TABLE `zamowienia_produkty`
   ADD KEY `zamowienia_produkty_fk3` (`produkt`);
 
 --
--- AUTO_INCREMENT dla zrzuconych tabel
+-- AUTO_INCREMENT for dumped tables
 --
 
 --
--- AUTO_INCREMENT dla tabeli `dostep`
+-- AUTO_INCREMENT for table `dostep`
 --
 ALTER TABLE `dostep`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
--- AUTO_INCREMENT dla tabeli `produkty`
+-- AUTO_INCREMENT for table `produkty`
 --
 ALTER TABLE `produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
--- AUTO_INCREMENT dla tabeli `status_zamowienia`
+-- AUTO_INCREMENT for table `status_zamowienia`
 --
 ALTER TABLE `status_zamowienia`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT dla tabeli `typy_produktow`
+-- AUTO_INCREMENT for table `typy_produktow`
 --
 ALTER TABLE `typy_produktow`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
--- AUTO_INCREMENT dla tabeli `uzytkownicy`
+-- AUTO_INCREMENT for table `uzytkownicy`
 --
 ALTER TABLE `uzytkownicy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
--- AUTO_INCREMENT dla tabeli `zamowienia`
+-- AUTO_INCREMENT for table `zamowienia`
 --
 ALTER TABLE `zamowienia`
   MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT dla tabeli `zamowienia_produkty`
+-- AUTO_INCREMENT for table `zamowienia_produkty`
 --
 ALTER TABLE `zamowienia_produkty`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- Ograniczenia dla zrzutów tabel
+-- Constraints for dumped tables
 --
 
 --
--- Ograniczenia dla tabeli `produkty`
+-- Constraints for table `produkty`
 --
 ALTER TABLE `produkty`
   ADD CONSTRAINT `Produkty_fk4` FOREIGN KEY (`typ`) REFERENCES `typy_produktow` (`id`);
 
 --
--- Ograniczenia dla tabeli `uzytkownicy`
+-- Constraints for table `uzytkownicy`
 --
 ALTER TABLE `uzytkownicy`
   ADD CONSTRAINT `Uzytkownicy_fk3` FOREIGN KEY (`dostep`) REFERENCES `dostep` (`id`);
 
 --
--- Ograniczenia dla tabeli `zamowienia`
+-- Constraints for table `zamowienia`
 --
 ALTER TABLE `zamowienia`
   ADD CONSTRAINT `Zamowienia_fk1` FOREIGN KEY (`uzytkownik_id`) REFERENCES `uzytkownicy` (`id`),
   ADD CONSTRAINT `Zamowienia_fk3` FOREIGN KEY (`status`) REFERENCES `status_zamowienia` (`id`);
 
 --
--- Ograniczenia dla tabeli `zamowienia_produkty`
+-- Constraints for table `zamowienia_produkty`
 --
 ALTER TABLE `zamowienia_produkty`
   ADD CONSTRAINT `zamowienia_produkty_fk1` FOREIGN KEY (`numer_zamowienia`) REFERENCES `zamowienia` (`numer_zamowienia`),
