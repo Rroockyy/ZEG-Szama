@@ -76,6 +76,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     </header>
     <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-row">
         <div id="SignIn" class="m-5">
+            <?php if ($message !== '') {
+                echo '<div class="alert alert-warning" role="alert">' . htmlspecialchars($message) . '</div>';
+            } ?>
             <form action="#" method="post" class="d-flex justify-content-center align-items-center flex-column">
                 <h2>Rejestracja</h2>
                 <label for="SignInName">Nazwa Konta</label><input type="text" id="SignInName">
