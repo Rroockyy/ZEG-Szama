@@ -1,3 +1,7 @@
+<?php
+session_start();
+?>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -13,8 +17,17 @@
         <a href="menu.php" class="m-3">Menu</a>
         <a href="" class="me-auto">Kupony</a>
         <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
-        <a href="logIn.php" class="ms-auto">Logowanie</a>
-        <a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>
+        <?php
+        if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+            echo '<div class="ms-auto text-end">';
+                echo '<h4 class="ms-auto font-weight-bold">Witaj, ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
+            echo '</div>';
+        } else {
+            echo '<a href="logIn.php" class="ms-auto">Logowanie</a>';
+            echo '<a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>';
+        }
+        ?>
     </header>
     <main class="flex-grow-1 d-flex align-items-center flex-column">
     </main>
