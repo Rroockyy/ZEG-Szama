@@ -1,15 +1,22 @@
 <?php
-    $db = mysqli_connect("localhost", "root", "", "szama");
+    session_start();
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
-    $username = ($_POST['username'] ?? '');
-    $email = ($_POST['email'] ?? '');
-    $phone = ($_POST['phone'] ?? '');
+    $db = mysqli_connect("localhost", "root", "", "szama");
+    $message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
+    $username = trim($_POST['username'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $phone = trim($_POST['phone'] ?? '');
     $password = $_POST['password'] ?? '';
 
-        if ($username === '' || $email === '' || $password === '') {
+    if ($username === '' || $email === '' || $password === '') {
         $message = 'Wypełnij wszystkie wymagane pola.';
-        }else{
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $message = 'Podaj poprawny adres e-mail.';
+    } elseif (strlen($password) < 6) {
+        $message = 'Hasło musi mieć co najmniej 6 znaków.';
+    } else {
             $insert = "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep, status) VALUES ($username, $email, $phone, $password, 1, 1)";
             $result = mysqli_query($db, $insert);
         }
