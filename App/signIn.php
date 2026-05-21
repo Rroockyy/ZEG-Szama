@@ -1,8 +1,8 @@
 <?php
-    session_start();
+session_start();
 
-    $db = mysqli_connect("localhost", "root", "", "szama");
-    $message = '';
+$db = mysqli_connect("localhost", "root", "", "szama");
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     $username = trim($_POST['username'] ?? '');
@@ -17,9 +17,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     } elseif (strlen($password) < 6) {
         $message = 'Hasło musi mieć co najmniej 6 znaków.';
     } else {
-            $insert = "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep, status) VALUES ($username, $email, $phone, $password, 1, 1)";
-            $result = mysqli_query($db, $insert);
+
+        $checkStatement = mysqli_prepare($db, "SELECT id FROM uzytkownicy WHERE nazwa_uzytkownika = ? OR Email = ?");
+        mysqli_stmt_bind_param($checkStatement, 'ss', $username, $email);
+        mysqli_stmt_execute($checkStatement);
+        mysqli_stmt_store_result($checkStatement);
+
+            $insertStatement = mysqli_prepare($db, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, haslo, dostep, status) VALUES (?, ?, ?, 1, 1)");
+            mysqli_stmt_bind_param($insertStatement, 'sss', $username, $email, $hash);
+
+            if (mysqli_stmt_execute($insertStatement)) {
+                session_regenerate_id(true);
+                $_SESSION['user_id'] = mysqli_insert_id($db);
+                $_SESSION['username'] = $username;
+                $_SESSION['logged_in'] = true;
+
+                mysqli_stmt_close($checkStatement);
+                mysqli_stmt_close($insertStatement);
+                mysqli_close($db);
+
+                header('Location: menu.php');
+                exit;
+            }
+
+            $message = 'Wystąpił błąd podczas rejestracji. Spróbuj ponownie.';
+            mysqli_stmt_close($insertStatement);
         }
+
+        mysqli_stmt_close($checkStatement);
     }
 ?>
 
