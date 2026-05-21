@@ -76,15 +76,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     </header>
     <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-row">
         <div id="SignIn" class="m-5">
+            <!-- wyswieta errory -->
             <?php if ($message !== '') {
                 echo '<div class="alert alert-warning" role="alert">' . htmlspecialchars($message) . '</div>';
             } ?>
-            <form action="#" method="post" class="d-flex justify-content-center align-items-center flex-column">
+            <form action="signIn.php" method="post" class="d-flex justify-content-center align-items-center flex-column">
                 <h2>Rejestracja</h2>
-                <label for="SignInName">Nazwa Konta</label><input type="text" id="SignInName">
-                <label for="SignInEmail">E-mail</label><input type="email" id="SignInEmail">
-                <label for="SignInTel">Numer Telefonu</label><input type="tel" id="SignInTel" pattern="[0-9]{9}">
-                <label for="SignInPass">Hasło</label><input type="password" id="SignInPass">
+                <label for="SignInName">Nazwa Konta</label>
+                <input type="text" id="SignInName" name="username" required>
+                <label for="SignInEmail">E-mail</label>
+                <input type="email" id="SignInEmail" name="email" required>
+                <label for="SignInTel">Numer Telefonu</label>
+                <input type="tel" id="SignInTel" name="phone" pattern="[0-9]{9}">
+                <label for="SignInPass">Hasło</label>
+                <input type="password" id="SignInPass" name="password" required>
                 <input type="submit" value="Utwórz konto" id="CreateAccountBtn">
                 <sub>Masz już konto? <a href="logIn.php" id="LogInAccExistHref">Zaloguj się</a></sub>
             </form>
@@ -113,6 +118,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>
+
 <?php
-    mysqli_close($db); 
+    mysqli_close($db);
 ?>
