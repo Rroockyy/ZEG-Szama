@@ -17,12 +17,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
     } elseif (strlen($password) < 6) {
         $message = 'Hasło musi mieć co najmniej 6 znaków.';
     } else {
-
+        // ochrona od sql injection
+        mysqli_set_charset($db, 'utf8mb4');
         $checkStatement = mysqli_prepare($db, "SELECT id FROM uzytkownicy WHERE nazwa_uzytkownika = ? OR Email = ?");
         mysqli_stmt_bind_param($checkStatement, 'ss', $username, $email);
         mysqli_stmt_execute($checkStatement);
         mysqli_stmt_store_result($checkStatement);
 
+        if (mysqli_stmt_num_rows($checkStatement) > 0) {
+            $message = 'Nazwa użytkownika lub e-mail są już zajęte.';
+        } else {
+
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            //
             $insertStatement = mysqli_prepare($db, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, haslo, dostep, status) VALUES (?, ?, ?, 1, 1)");
             mysqli_stmt_bind_param($insertStatement, 'sss', $username, $email, $hash);
 
@@ -46,6 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
 
         mysqli_stmt_close($checkStatement);
     }
+}
 ?>
 
 <!DOCTYPE html>
