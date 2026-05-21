@@ -1,3 +1,7 @@
+<?php
+    $db = mysqli_connect("localhost", "root", "", "szama");
+?>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -10,13 +14,25 @@
 </head>
 <body class="min-vh-100 d-flex flex-column">
     <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
-        <a href="menu.html" class="m-3">Menu</a>
+        <a href="menu.php" class="m-3">Menu</a>
         <a href="" class="me-auto">Kupony</a>
-        <a href="menu.html"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
-        <a href="logIn.html" class="ms-auto">Logowanie</a>
-        <a href="signIn.html" class="m-3" id="SignInBtn">Rejestracja</a>
+        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
+        <a href="logIn.php" class="ms-auto">Logowanie</a>
+        <a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>
     </header>
-    <main class="flex-grow-1 d-flex align-items-center flex-column">
+    <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-column">
+        <img src="src/zeg.png" alt="logo zegu" id="zeg-background"> 
+        <div id="LogIn" class="m-5">
+            <form action="#" method="post" class="d-flex justify-content-center align-items-center flex-column row-gap-2">
+                <h2>Logowanie</h2>
+                <label for="LogInEmail" style="align-self: flex-start;">E-mail</label><input type="email" id="LogInEmail">
+                <label for="LogInPass" style="align-self: flex-start;">Hasło</label><input type="password" id="LogInPass">
+                <a href="" id="ForgotPass"><sub>Nie pamiętasz hasła?</sub></a>
+                <div><input type="checkbox" id="RememberPass"><label for="RememberPass">Zapamiętaj hasło</label></div>
+                <input type="submit" value="Zaloguj się" id="LogInBtn">
+                <sub>Nie masz konta? <a href="signIn.php" id="LogInAccExistHref">Zarejestruj się</a></sub>
+            </form>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">

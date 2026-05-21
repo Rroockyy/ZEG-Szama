@@ -1,3 +1,21 @@
+<?php
+    $db = mysqli_connect("localhost", "root", "", "szama");
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
+    $username = ($_POST['username'] ?? '');
+    $email = ($_POST['email'] ?? '');
+    $phone = ($_POST['phone'] ?? '');
+    $password = $_POST['password'] ?? '';
+
+        if ($username === '' || $email === '' || $password === '') {
+        $message = 'Wypełnij wszystkie wymagane pola.';
+        }else{
+            $insert = "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep, status) VALUES ($username, $email, $phone, $password, 1, 1)";
+            $result = mysqli_query($db, $insert);
+        }
+    }
+?>
+
 <!DOCTYPE html>
 <html lang="pl">
 <head>
@@ -10,11 +28,11 @@
 </head>
 <body class="min-vh-100 d-flex flex-column">
     <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
-        <a href="menu.html" class="m-3">Menu</a>
+        <a href="menu.php" class="m-3">Menu</a>
         <a href="" class="me-auto">Kupony</a>
-        <a href="menu.html"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
-        <a href="logIn.html" class="ms-auto">Logowanie</a>
-        <a href="signIn.html" class="m-3" id="SignInBtn">Rejestracja</a>
+        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
+        <a href="logIn.php" class="ms-auto">Logowanie</a>
+        <a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>
     </header>
     <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-row">
         <div id="SignIn" class="m-5">
@@ -25,7 +43,7 @@
                 <label for="SignInTel">Numer Telefonu</label><input type="tel" id="SignInTel" pattern="[0-9]{9}">
                 <label for="SignInPass">Hasło</label><input type="password" id="SignInPass">
                 <input type="submit" value="Utwórz konto" id="CreateAccountBtn">
-                <sub>Masz już konto? <a href="logIn.html" id="LogInAccExistHref">Zaloguj się</a></sub>
+                <sub>Masz już konto? <a href="logIn.php" id="LogInAccExistHref">Zaloguj się</a></sub>
             </form>
         </div>
         <div class="m-5">
@@ -52,3 +70,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>
+<?php
+    mysqli_close($db); 
+?>
