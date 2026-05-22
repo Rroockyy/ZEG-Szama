@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 21, 2026 at 10:05 PM
+-- Generation Time: Maj 22, 2026 at 10:17 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -142,7 +142,8 @@ CREATE TABLE `uzytkownicy` (
   `id` int(11) NOT NULL,
   `nazwa_uzytkownika` varchar(25) NOT NULL,
   `Email` varchar(35) DEFAULT NULL,
-  `haslo` varchar(50) NOT NULL,
+  `telefon` varchar(15) DEFAULT NULL,
+  `haslo` varchar(255) DEFAULT NULL,
   `dostep` int(11) NOT NULL,
   `status` tinyint(1) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -151,10 +152,9 @@ CREATE TABLE `uzytkownicy` (
 -- Dumping data for table `uzytkownicy`
 --
 
-INSERT INTO `uzytkownicy` (`id`, `nazwa_uzytkownika`, `Email`, `haslo`, `dostep`, `status`) VALUES
-(1, 'admin', NULL, 'maslo', 2, 1),
-(2, 'Rogalik', 'jan@firma.pl', '$2y$10$6H/meIRImm.d7TaibXbJMu7HKqwsVsxVhKQ2lIkscmy', 1, 1),
-(3, 'Rogalik2', 'rogal@gmail.pl', '$2y$10$MTg8j7g7P94Ph28PnMxtmuAY5xub2X/g6mBRwU1UGN7', 1, 1);
+INSERT INTO `uzytkownicy` (`id`, `nazwa_uzytkownika`, `Email`, `telefon`, `haslo`, `dostep`, `status`) VALUES
+(6, 'test2', 'ab@cd.ef', NULL, '$2y$10$uXemfutF9Cqo06fp2hnwrOsf3M0sKS5q2TYduHnOVlWRmWYymFjK.', 2, 1),
+(7, 'Rogal', 'rogal@gmail.com', '987654321', '$2y$10$4yX6wxwJk8Fv5DcA8kCwEu8VeNSx6UaGNtQc4WPp.ulEnE1d3ieLm', 1, 1);
 
 -- --------------------------------------------------------
 
@@ -277,7 +277,7 @@ ALTER TABLE `typy_produktow`
 -- AUTO_INCREMENT for table `uzytkownicy`
 --
 ALTER TABLE `uzytkownicy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `zamowienia`

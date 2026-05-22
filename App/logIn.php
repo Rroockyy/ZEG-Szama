@@ -1,6 +1,62 @@
 <?php
     session_start();
-    $db = mysqli_connect("localhost", "root", "", "szama");
+    $conn = mysqli_connect("localhost", "root", "", "szama");
+
+    $message = '';
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
+
+        $login = trim($_POST['login'] ?? '');
+        $password = $_POST['password'] ?? '';
+
+        if ($login === '' || $password === '') {
+
+            $message = 'Wypełnij wszystkie pola.';
+
+        } else {
+
+            mysqli_set_charset($conn, 'utf8mb4');
+
+            $statement = mysqli_prepare(
+                $conn,
+                "SELECT id, nazwa_uzytkownika, haslo 
+                FROM uzytkownicy 
+                WHERE nazwa_uzytkownika = ? OR Email = ?"
+            );
+
+            mysqli_stmt_bind_param($statement, 'ss', $login, $login);
+            mysqli_stmt_execute($statement);
+
+            $result = mysqli_stmt_get_result($statement);
+
+            if ($user = mysqli_fetch_assoc($result)) {
+
+                if (password_verify($password, $user['haslo'])) {
+
+                    session_regenerate_id(true);
+
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['username'] = $user['nazwa_uzytkownika'];
+                    $_SESSION['logged_in'] = true;
+
+                    header("Location: menu.php");
+                    exit;
+
+                } else {
+
+                    $message = 'Nieprawidłowe hasło.';
+                }
+
+            } else {
+
+                $message = 'Użytkownik nie istnieje.';
+            }
+
+            mysqli_stmt_close($statement);
+        }
+    }
+
+    mysqli_close($conn);
 ?>
 
 <!DOCTYPE html>
@@ -24,10 +80,17 @@
     <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-column">
         <img src="src/zeg.png" alt="logo zegu" id="zeg-background"> 
         <div id="LogIn" class="m-5">
-            <form action="#" method="post" class="d-flex justify-content-center align-items-center flex-column row-gap-2">
+            <?php
+                if ($message !== '') {
+                    echo '<div class="alert alert-warning">' .
+                        htmlspecialchars($message) .
+                        '</div>';
+                }
+            ?>
+            <form action="logIn.php" method="post" class="d-flex justify-content-center align-items-center flex-column row-gap-2">
                 <h2>Logowanie</h2>
-                <label for="LogInEmail" style="align-self: flex-start;">E-mail</label><input type="email" id="LogInEmail">
-                <label for="LogInPass" style="align-self: flex-start;">Hasło</label><input type="password" id="LogInPass">
+                <label for="LogInEmail" style="align-self: flex-start;">E-mail</label><input type="email" id="LogInEmail" name="login" required>
+                <label for="LogInPass" style="align-self: flex-start;">Hasło</label><input type="password" id="LogInPass" name="password" required>
                 <a href="" id="ForgotPass"><sub>Nie pamiętasz hasła?</sub></a>
                 <div><input type="checkbox" id="RememberPass"><label for="RememberPass">Zapamiętaj hasło</label></div>
                 <input type="submit" value="Zaloguj się" id="LogInBtn">

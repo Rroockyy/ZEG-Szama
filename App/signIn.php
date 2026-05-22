@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-$db = mysqli_connect("localhost", "root", "", "szama");
+$conn = mysqli_connect("localhost", "root", "", "szama");
 $message = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
     $username = trim($_POST['username'] ?? '');
     $email = trim($_POST['email'] ?? '');
     $phone = trim($_POST['phone'] ?? '');
@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
         $message = 'Hasło musi mieć co najmniej 6 znaków.';
     } else {
         // ochrona od sql injection
-        mysqli_set_charset($db, 'utf8mb4');
-        $checkStatement = mysqli_prepare($db, "SELECT id FROM uzytkownicy WHERE nazwa_uzytkownika = ? OR Email = ?");
+        mysqli_set_charset($conn, 'utf8mb4');
+        $checkStatement = mysqli_prepare($conn, "SELECT id FROM uzytkownicy WHERE nazwa_uzytkownika = ? OR Email = ?");
         mysqli_stmt_bind_param($checkStatement, 'ss', $username, $email);
         mysqli_stmt_execute($checkStatement);
         mysqli_stmt_store_result($checkStatement);
@@ -30,18 +30,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
             //
-            $insertStatement = mysqli_prepare($db, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, haslo, dostep, status) VALUES (?, ?, ?, 1, 1)");
-            mysqli_stmt_bind_param($insertStatement, 'sss', $username, $email, $hash);
+            $insertStatement = mysqli_prepare($conn, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep, status) VALUES (?, ?, ?, ?, 1, 1)");
+            mysqli_stmt_bind_param($insertStatement, 'ssss', $username, $email, $phone, $hash);
 
             if (mysqli_stmt_execute($insertStatement)) {
                 session_regenerate_id(true);
-                $_SESSION['user_id'] = mysqli_insert_id($db);
+                $_SESSION['user_id'] = mysqli_insert_id($conn);
                 $_SESSION['username'] = $username;
                 $_SESSION['logged_in'] = true;
 
                 mysqli_stmt_close($checkStatement);
                 mysqli_stmt_close($insertStatement);
-                mysqli_close($db);
+                mysqli_close($conn);
 
                 header('Location: menu.php');
                 exit;
@@ -120,5 +120,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $db) {
 </html>
 
 <?php
-    mysqli_close($db);
+    mysqli_close($conn);
 ?>
