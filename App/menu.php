@@ -82,7 +82,7 @@ session_start();
         </div>
         <div class="position-absolute">
             <a href="" class="m-2">Nowości</a>
-            <a href="" class="m-2">O nas</a>
+            <a href="aboutUs.php" class="m-2">O nas</a>
             <a href="" class="m-2">Kontakt</a>
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>

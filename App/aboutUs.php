@@ -30,33 +30,11 @@ session_start();
         }
         ?>
     </header>
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
-        <?php
-            if (!isset($_SESSION['logged_in'])) {
-                echo '<div class="alert alert-danger mt-5" role="alert">Musisz być zalogowany, aby zobaczyć kupony.<br><sub><a href="signIn.php" id="LogInAccExistHref" class="m-2">Zarejestruj się</a></sub><sub><a href="logIn.php" id="LogInAccExistHref" class="m-2">Zaloguj się</a></sub></div>';
-            } else {
-                $query = "SELECT kupony.id, kupony.nazwa, kupony.cena, GROUP_CONCAT(produkty.zdjecie) AS zdjecia FROM kupony JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu JOIN produkty ON kupony_produkty.id_produktu = produkty.id GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
-                $coupons = mysqli_query($conn, $query);
-                if (mysqli_num_rows($coupons) > 0) {    
-                    echo '<div class="d-flex flex-wrap justify-content-center w-100">';
-                    while($row = mysqli_fetch_array($coupons)) {
-                        $images = explode(',', $row['zdjecia']);
-                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
-                        echo "<div class='d-flex justify-content-center w-100'>";
-                        foreach ($images as $image) {
-                            echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
-                        }
-                        echo '</div>';
-                        echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
-                        echo '<button class="addToCartBtn mt-3">Dodaj do koszyka</button>';
-                        echo '</div>';
-                    }
-                    echo '</div>';
-                } else {
-                    echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
-                }
-            }
-        ?>
+    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
+        <h1 class="mt-5">O nas</h1>
+        <p class="mt-3 text-center w-75 fs-3">
+            Strona Zegowskiego Sklepiku szkolnego została przygotowana przez Ksawerego Berk i Antoniego Dzięgielewskiego. Aplikacja została stworzona w ramach projektu szkolnego w klasie 3 w roku 2026 w okesie kwiecień-czerwiec.
+        </p>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
