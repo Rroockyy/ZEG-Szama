@@ -1,0 +1,80 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "szama");
+session_start();
+?>
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zegowska Szama</title>
+    <link rel="icon" href="zeg.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+    <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
+        <a href="menu.php" class="m-3">Menu</a>
+        <a href="coupons.php" class="me-auto">Kupony</a>
+        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
+        <?php
+        if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+            echo '<div class="ms-auto text-end">';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako:  ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
+            echo '</div>';
+        } else {
+            echo '<a href="logIn.php" class="ms-auto">Logowanie</a>';
+            echo '<a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>';
+        }
+        ?>
+    </header>
+    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
+        <?php
+            if (!isset($_SESSION['logged_in'])) {
+                echo '<div class="alert alert-danger mt-5" role="alert">Musisz być zalogowany, aby zobaczyć kupony.<br><sub><a href="signIn.php" id="LogInAccExistHref" class="m-2">Zarejestruj się</a></sub><sub><a href="logIn.php" id="LogInAccExistHref" class="m-2">Zaloguj się</a></sub></div>';
+            } else {
+                $query = "SELECT kupony.id, kupony.nazwa, kupony.cena, GROUP_CONCAT(produkty.zdjecie) AS zdjecia FROM kupony JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu JOIN produkty ON kupony_produkty.id_produktu = produkty.id GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
+                $coupons = mysqli_query($conn, $query);
+                if (mysqli_num_rows($coupons) > 0) {    
+                    echo '<div class="d-flex flex-wrap justify-content-center w-100">';
+                    while($row = mysqli_fetch_array($coupons)) {
+                        $images = explode(',', $row['zdjecia']);
+                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
+                        echo "<div class='d-flex justify-content-center w-100'>";
+                        foreach ($images as $image) {
+                            echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
+                        }
+                        echo '</div>';
+                        echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
+                        echo '<button class="addToCartBtn mt-3">Dodaj do koszyka</button>';
+                        echo '</div>';
+                    }
+                    echo '</div>';
+                } else {
+                    echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
+                }
+            }
+        ?>
+    </main>
+    <footer class="d-flex align-items-center justify-content-center p-2">
+        <div class="me-auto">
+            Zamów przez telefon <br>
+            +48 123 456 789
+        </div>
+        <div class="position-absolute">
+            <a href="" class="m-2">Nowości</a>
+            <a href="" class="m-2">O nas</a>
+            <a href="" class="m-2">Kontakt</a>
+        </div>
+        <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<?php
+    mysqli_close($conn);
+?>

@@ -16,12 +16,12 @@ session_start();
 <body class="min-vh-100 d-flex flex-column">
     <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
         <a href="menu.php" class="m-3">Menu</a>
-        <a href="" class="me-auto">Kupony</a>
+        <a href="coupons.php" class="me-auto">Kupony</a>
         <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
         <?php
         if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
             echo '<div class="ms-auto text-end">';
-                echo '<h4 class="ms-auto font-weight-bold">Witaj, ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '</h4>';
                 echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
             echo '</div>';
         } else {
@@ -92,3 +92,6 @@ session_start();
 </body>
 </html>
 
+<?php
+    mysqli_close($conn);
+?>

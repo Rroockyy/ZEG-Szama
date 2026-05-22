@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
 <body class="min-vh-100 d-flex flex-column">
     <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
         <a href="menu.php" class="m-3">Menu</a>
-        <a href="" class="me-auto">Kupony</a>
+        <a href="coupons.php" class="me-auto">Kupony</a>
         <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
         <a href="logIn.php" class="ms-auto">Logowanie</a>
         <a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>

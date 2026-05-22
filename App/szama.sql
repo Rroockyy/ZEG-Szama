@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 22, 2026 at 10:17 PM
+-- Generation Time: Maj 22, 2026 at 11:43 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -39,6 +39,53 @@ CREATE TABLE `dostep` (
 INSERT INTO `dostep` (`id`, `dostep`) VALUES
 (2, 'administrator'),
 (1, 'użytkownik');
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `kupony`
+--
+
+CREATE TABLE `kupony` (
+  `id` int(11) NOT NULL,
+  `nazwa` text DEFAULT NULL,
+  `cena` float NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `kupony`
+--
+
+INSERT INTO `kupony` (`id`, `nazwa`, `cena`) VALUES
+(1, '2 hot-dogi', 10),
+(2, 'Bułka szynka + Bułka ser', 5),
+(3, 'Każdy rozmiar Tymbarków', 13);
+
+-- --------------------------------------------------------
+
+--
+-- Struktura tabeli dla tabeli `kupony_produkty`
+--
+
+CREATE TABLE `kupony_produkty` (
+  `id` int(11) NOT NULL,
+  `id_kuponu` int(11) NOT NULL,
+  `id_produktu` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `kupony_produkty`
+--
+
+INSERT INTO `kupony_produkty` (`id`, `id_kuponu`, `id_produktu`) VALUES
+(1, 1, 11),
+(2, 1, 11),
+(3, 2, 4),
+(4, 2, 5),
+(5, 3, 17),
+(6, 3, 19),
+(7, 3, 20),
+(8, 3, 21);
 
 -- --------------------------------------------------------
 
@@ -195,6 +242,20 @@ ALTER TABLE `dostep`
   ADD UNIQUE KEY `dostep` (`dostep`);
 
 --
+-- Indeksy dla tabeli `kupony`
+--
+ALTER TABLE `kupony`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indeksy dla tabeli `kupony_produkty`
+--
+ALTER TABLE `kupony_produkty`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `id_kuponu` (`id_kuponu`),
+  ADD KEY `id_produktu` (`id_produktu`);
+
+--
 -- Indeksy dla tabeli `produkty`
 --
 ALTER TABLE `produkty`
@@ -256,6 +317,18 @@ ALTER TABLE `dostep`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
+-- AUTO_INCREMENT for table `kupony`
+--
+ALTER TABLE `kupony`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+
+--
+-- AUTO_INCREMENT for table `kupony_produkty`
+--
+ALTER TABLE `kupony_produkty`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+
+--
 -- AUTO_INCREMENT for table `produkty`
 --
 ALTER TABLE `produkty`
@@ -294,6 +367,13 @@ ALTER TABLE `zamowienia_produkty`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `kupony_produkty`
+--
+ALTER TABLE `kupony_produkty`
+  ADD CONSTRAINT `kupony_produkty_ibfk_1` FOREIGN KEY (`id_kuponu`) REFERENCES `kupony` (`id`),
+  ADD CONSTRAINT `kupony_produkty_ibfk_2` FOREIGN KEY (`id_produktu`) REFERENCES `produkty` (`id`);
 
 --
 -- Constraints for table `produkty`
