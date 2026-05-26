@@ -20,8 +20,23 @@ session_start();
         <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
         <?php
         if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+            $userDostep = 0;
+            if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
+                $userId = intval($_SESSION['user_id']);
+                mysqli_stmt_bind_param($stmt, 'i', $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $userDostep);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+                if (!isset($_SESSION['dostep'])) {
+                    $_SESSION['dostep'] = $userDostep;
+                }
+            }
             echo '<div class="ms-auto text-end">';
-                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako:  ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                if (intval($userDostep) === 2) {
+                    echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
+                }
                 echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
             echo '</div>';
         } else {

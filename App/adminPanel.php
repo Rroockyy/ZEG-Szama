@@ -46,10 +46,7 @@ session_start();
         ?>
     </header>
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
-        <h1 class="mt-5">O nas</h1>
-        <p class="mt-3 text-center w-75 fs-3">
-            Strona Zegowskiego Sklepiku szkolnego została przygotowana przez Ksawerego Berk i Antoniego Dzięgielewskiego. Aplikacja została stworzona w ramach projektu szkolnego w klasie 3 w roku 2026 w okesie kwiecień-czerwiec.
-        </p>
+        
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
