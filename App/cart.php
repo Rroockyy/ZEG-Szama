@@ -45,11 +45,8 @@ session_start();
         }
         ?>
     </header>
-    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
-        <h1 class="mt-5">O nas</h1>
-        <p class="mt-3 text-center w-75 fs-3">
-            Strona Zegowskiego Sklepiku szkolnego została przygotowana przez Ksawerego Berk i Antoniego Dzięgielewskiego. Aplikacja została stworzona w ramach projektu szkolnego w klasie 3 w roku 2026 w okesie kwiecień-czerwiec.
-        </p>
+    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
+        <h1 class="mt-5">Twój koszyk</h1>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -63,91 +60,6 @@ session_start();
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
     </footer>
-
-    <?php
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    $totalItems = 0;
-    $totalPrice = 0;
-
-    foreach ($_SESSION['cart'] as $item) {
-        $totalItems += $item['quantity'];
-        $totalPrice += $item['price'] * $item['quantity'];
-    }
-    ?>
-
-    <div id="cartBox" class="<?php echo $totalItems > 0 ? '' : 'd-none'; ?>">
-        
-        <div id="cartSummary">
-            <span id="cartItems"><?php echo $totalItems; ?></span> produktów |
-            <span id="cartTotal"><?php echo number_format($totalPrice, 2); ?></span> zł
-        </div>
-
-        <div id="cartExpanded" class="d-none">
-            
-            <div id="cartItemsList">
-                <?php
-                foreach ($_SESSION['cart'] as $item) {
-                    echo "
-                    <div class='cartItem'>
-                        <img src='src/{$item['image']}' width='50'>
-                        <div>
-                            <div>{$item['name']}</div>
-                            <div>{$item['quantity']} x {$item['price']} zł</div>
-                        </div>
-                    </div>
-                    ";
-                }
-                ?>
-            </div>
-
-            <a href='cart.php' class='btn btn-danger w-100 mt-2'>
-                Przejdź do koszyka
-            </a>
-
-        </div>
-    </div>
-
-    <script>
-    const cartBox = document.getElementById("cartBox");
-    const cartSummary = document.getElementById("cartSummary");
-    const cartExpanded = document.getElementById("cartExpanded");
-
-    cartSummary.addEventListener("click", () => {
-        cartExpanded.classList.toggle("d-none");
-    });
-
-    document.querySelectorAll(".addToCartBtn").forEach(btn => {
-
-        btn.addEventListener("click", () => {
-            const formData = new FormData();
-
-            formData.append("name", btn.dataset.name);
-            formData.append("price", btn.dataset.price);
-            formData.append("image", btn.dataset.image);
-
-            fetch("cart.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
-
-                cartBox.classList.remove("d-none");
-
-                document.getElementById("cartItems").innerText = data.items;
-                document.getElementById("cartTotal").innerText = data.total;
-
-                document.getElementById("cartItemsList").innerHTML = data.html;
-            });
-
-        });
-
-    });
-    </script>
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>
