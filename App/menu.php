@@ -67,7 +67,7 @@ session_start();
                     echo "<div id='type-$row[typ]' class='m-4'>";
                     echo "<h2>$row[typ]</h2>";
 
-                        $query2 = "SELECT zdjecie, nazwa, cena FROM produkty WHERE typ = $row[id] ORDER BY id ASC";
+                        $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $row[id] ORDER BY id ASC";
                         $products = mysqli_query($conn, $query2);
                         while($row2 = mysqli_fetch_array($products)) {
                             echo "<div class='productBox";
@@ -83,6 +83,7 @@ session_start();
                             echo "<span>$row2[cena]zł</span>";
                             echo "<button 
                                     class='addToCartBtn'
+                                    data-id='$row2[id]'
                                     data-name='$row2[nazwa]'
                                     data-price='$row2[cena]'
                                     data-image='$row2[zdjecie]'
@@ -198,17 +199,17 @@ session_start();
             }
         }
 
-        function addToCart(name, price, image) {
-
+        function addToCart(id, name, price, image) {
             let cart = getCart();
 
-            const existing = cart.find(item => item.name === name);
+            const existing = cart.find(item => item.id === id);
 
             if (existing) {
                 existing.quantity++;
             }
             else {
                 cart.push({
+                    id: id,
                     name: name,
                     price: parseFloat(price),
                     image: image,
@@ -229,11 +230,11 @@ session_start();
             btn.addEventListener("click", () => {
 
                 addToCart(
+                    btn.dataset.id,
                     btn.dataset.name,
                     btn.dataset.price,
                     btn.dataset.image
                 );
-
             });
 
         });

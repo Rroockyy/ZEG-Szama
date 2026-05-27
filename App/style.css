@@ -238,3 +238,8 @@ a div.itemsType{
 #cartTotal{
     clear: both;
 }
+
+#orderSummary{
+    overflow-y: auto;
+    max-height: 300px;
+}

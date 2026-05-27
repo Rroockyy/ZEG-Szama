@@ -19,7 +19,7 @@
 
             $statement = mysqli_prepare(
                 $conn,
-                "SELECT id, nazwa_uzytkownika, haslo 
+                "SELECT id, nazwa_uzytkownika, Email, telefon, haslo 
                 FROM uzytkownicy 
                 WHERE nazwa_uzytkownika = ? OR Email = ?"
             );
@@ -37,6 +37,8 @@
 
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['username'] = $user['nazwa_uzytkownika'];
+                    $_SESSION['phone'] = $user['telefon'];
+                    $_SESSION['email'] = $user['Email'];
                     $_SESSION['logged_in'] = true;
 
                     header("Location: menu.php");

@@ -69,6 +69,8 @@ session_start();
             return JSON.parse(localStorage.getItem("cart")) || [];
         }
 
+        const isLoggedIn = <?php echo !empty($_SESSION['logged_in']) ? 'true' : 'false'; ?>;
+
         function renderCartPage() {
 
             const cart = getCart();
@@ -137,21 +139,17 @@ session_start();
             });
 
             cartPage.innerHTML += `
-
                 <div id="cartTotal" class="m-3 p-3 border rounded d-flex flex-row justify-content-center align-items-center gap-5">
-
                     <h2>
                         Suma: ${total.toFixed(2)} zł
                     </h2>
 
-                    <button
-                        class="btn btn-danger"
-                        onclick="alert('Funkcja realizacji zamówienia nie jest jeszcze zaimplementowana.')" 
-                    >
-                        Zamów i zapłać
-                    </button>
+                    ${
+                        isLoggedIn
+                        ? `<a href="payment.php" class="btn btn-danger">Zamów i zapłać</a>`
+                        : `<a href="logIn.php" class="btn btn-danger">Zaloguj się aby zamówić</a>`
+                    }
                 </div>
-
             `;
         }
 

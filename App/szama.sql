@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 26, 2026 at 11:34 PM
+-- Generation Time: Maj 28, 2026 at 12:21 AM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -212,7 +212,9 @@ CREATE TABLE `zamowienia` (
   `numer_zamowienia` int(11) NOT NULL,
   `uzytkownik_id` int(11) NOT NULL,
   `data` datetime NOT NULL,
-  `status` int(11) NOT NULL
+  `status` int(11) NOT NULL,
+  `metoda_platnosci` varchar(40) DEFAULT NULL,
+  `cena` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -225,7 +227,7 @@ CREATE TABLE `zamowienia_produkty` (
   `id` int(11) NOT NULL,
   `numer_zamowienia` int(11) NOT NULL,
   `ilosc` int(11) NOT NULL,
-  `produkt` int(11) NOT NULL
+  `produkt_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -303,7 +305,7 @@ ALTER TABLE `zamowienia_produkty`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `id` (`id`),
   ADD KEY `zamowienia_produkty_fk1` (`numer_zamowienia`),
-  ADD KEY `zamowienia_produkty_fk3` (`produkt`);
+  ADD KEY `zamowienia_produkty_fk3` (`produkt_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -355,7 +357,7 @@ ALTER TABLE `uzytkownicy`
 -- AUTO_INCREMENT for table `zamowienia`
 --
 ALTER TABLE `zamowienia`
-  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
 
 --
 -- AUTO_INCREMENT for table `zamowienia_produkty`
@@ -398,7 +400,7 @@ ALTER TABLE `zamowienia`
 --
 ALTER TABLE `zamowienia_produkty`
   ADD CONSTRAINT `zamowienia_produkty_fk1` FOREIGN KEY (`numer_zamowienia`) REFERENCES `zamowienia` (`numer_zamowienia`),
-  ADD CONSTRAINT `zamowienia_produkty_fk3` FOREIGN KEY (`produkt`) REFERENCES `produkty` (`id`);
+  ADD CONSTRAINT `zamowienia_produkty_fk3` FOREIGN KEY (`produkt_id`) REFERENCES `produkty` (`id`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

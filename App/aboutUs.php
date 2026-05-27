@@ -163,6 +163,7 @@ session_start();
             }
             else {
                 cart.push({
+                    id: id,
                     name: name,
                     price: parseFloat(price),
                     image: image,
@@ -183,6 +184,7 @@ session_start();
             btn.addEventListener("click", () => {
 
                 addToCart(
+                    btn.dataset.id,
                     btn.dataset.name,
                     btn.dataset.price,
                     btn.dataset.image

@@ -50,7 +50,16 @@ session_start();
             if (!isset($_SESSION['logged_in'])) {
                 echo '<div class="alert alert-danger mt-5" role="alert">Musisz być zalogowany, aby zobaczyć kupony.<br><sub><a href="signIn.php" id="LogInAccExistHref" class="m-2">Zarejestruj się</a></sub><sub><a href="logIn.php" id="LogInAccExistHref" class="m-2">Zaloguj się</a></sub></div>';
             } else {
-                $query = "SELECT kupony.id, kupony.nazwa, kupony.cena, GROUP_CONCAT(produkty.zdjecie) AS zdjecia FROM kupony JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu JOIN produkty ON kupony_produkty.id_produktu = produkty.id GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
+                $query = "SELECT 
+                            kupony.id,
+                            kupony.nazwa,
+                            kupony.cena,
+                            GROUP_CONCAT(produkty.id) AS produkty_ids,
+                            GROUP_CONCAT(produkty.zdjecie) AS zdjecia
+                        FROM kupony
+                        JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
+                        JOIN produkty ON kupony_produkty.id_produktu = produkty.id
+                        GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
                 $coupons = mysqli_query($conn, $query);
                 if (mysqli_num_rows($coupons) > 0) {    
                     echo '<div class="d-flex flex-wrap justify-content-center w-100">';
@@ -65,12 +74,14 @@ session_start();
                         echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
                         echo "<button 
                                     class='addToCartBtn'
+                                    data-id='$row[id]'
+                                    data-products='$row[produkty_ids]'
                                     data-name='$row[nazwa]'
                                     data-price='$row[cena]'
                                     data-image='$row[zdjecia]'
-                                    >
-                                    Dodaj do koszyka
-                                </button>";
+                                >
+                                Dodaj do koszyka
+                            </button>";
                         echo '</div>';
                     }
                     echo '</div>';
@@ -139,7 +150,7 @@ session_start();
                 totalItems += item.quantity;
                 totalPrice += item.price * item.quantity;
 
-                const images = item.image.split(",");
+                const images = (item.image || "").split(",");
 
                 let imagesHTML = "";
 
@@ -180,23 +191,17 @@ session_start();
             }
         }
 
-        function addToCart(name, price, image) {
-
+        function addToCart(id, name, price, image, products) {
             let cart = getCart();
 
-            const existing = cart.find(item => item.name === name);
-
-            if (existing) {
-                existing.quantity++;
-            }
-            else {
-                cart.push({
-                    name: name,
-                    price: parseFloat(price),
-                    image: image,
-                    quantity: 1
-                });
-            }
+            cart.push({
+                id: parseInt(id),
+                name: name,
+                price: parseFloat(price),
+                image: image,
+                products: products ? products.split(",").map(Number) : [],
+                quantity: 1
+            });
 
             saveCart(cart);
             renderCart();
@@ -211,9 +216,11 @@ session_start();
             btn.addEventListener("click", () => {
 
                 addToCart(
+                    btn.dataset.id,
                     btn.dataset.name,
                     btn.dataset.price,
-                    btn.dataset.image
+                    btn.dataset.image,
+                    btn.dataset.products
                 );
 
             });
