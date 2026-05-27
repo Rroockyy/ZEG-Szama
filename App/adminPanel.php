@@ -135,40 +135,47 @@ if (isset($_POST['createProductBtn'])) {
                         }
                     ?>
                 </select>
-            </form>
-            
+            </form>    
 <?php
-    // musialem przesunac usuwanie na gorze zeby produkt fajnie znikal a nie ze usuwasz i cie do indii daje
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
-        $productId = intval($_POST['productId']);
-
-        $deleteQuery = "DELETE FROM produkty WHERE id = $productId";
-        mysqli_query($conn, $deleteQuery);
-
-        header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['categoryFilter']) ? "?categoryFilter=" . $_GET['categoryFilter'] : ""));
-        exit();
+// musialem przesunac usuwanie na gorze zeby produkt fajnie znikal a nie ze usuwasz i cie do indii daje
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
+    $productId = intval($_POST['productId']);
+    // usuwa zdjęcie produktu z serwera
+    $imgQuery = "SELECT zdjecie FROM produkty WHERE id = $productId";
+    $imgResult = mysqli_query($conn, $imgQuery);
+    if ($imgRow = mysqli_fetch_assoc($imgResult)) {
+        $sciezkaDoPliku = 'src/' . $imgRow['zdjecie'];
+        if (file_exists($sciezkaDoPliku) && !empty($imgRow['zdjecie'])) {
+            unlink($sciezkaDoPliku); 
+        }
     }
 
-    if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
-        $categoryId = intval($_GET['categoryFilter']);
-        $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $categoryId ORDER BY id ASC";
-        $products = mysqli_query($conn, $query2);
+    $deleteQuery = "DELETE FROM produkty WHERE id = $productId";
+    mysqli_query($conn, $deleteQuery);
+
+    header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['categoryFilter']) ? "?categoryFilter=" . $_GET['categoryFilter'] : ""));
+    exit();
+}
+if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
+    $categoryId = intval($_GET['categoryFilter']);
+    $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $categoryId ORDER BY id ASC";
+    $products = mysqli_query($conn, $query2);
+    
+    echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
+    while($row2 = mysqli_fetch_array($products)) {
+        echo "<div class='productBox'>";
+        echo "<img src='src/{$row2['zdjecie']}' alt='{$row2['nazwa']}' class='w-50'>";
+        echo "<span>{$row2['nazwa']}</span>";
+        echo "<span>{$row2['cena']} zł</span>";
         
-        echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
-        while($row2 = mysqli_fetch_array($products)) {
-            echo "<div class='productBox'>";
-            echo "<img src='src/{$row2['zdjecie']}' alt='{$row2['nazwa']}' class='w-50'>";
-            echo "<span>{$row2['nazwa']}</span>";
-            echo "<span>{$row2['cena']} zł</span>";
-            
-            echo "<form action='' method='POST' style='margin-top: 10px;'>";
-            echo "<input type='hidden' name='productId' value='{$row2['id']}'>";
-            echo "<button type='submit' name='deleteProduct' class='btn btn-danger btn-sm'>Usuń</button>";
-            echo "</form>";
-            echo "</div>";
-        }
+        echo "<form action='' method='POST' style='margin-top: 10px;'>";
+        echo "<input type='hidden' name='productId' value='{$row2['id']}'>";
+        echo "<button type='submit' name='deleteProduct' class='btn btn-danger btn-sm'>Usuń</button>";
+        echo "</form>";
         echo "</div>";
     }
+    echo "</div>";
+}
 ?>
         </div>
         <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded">
