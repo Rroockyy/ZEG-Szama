@@ -45,8 +45,56 @@ session_start();
         }
         ?>
     </header>
-    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
-        
+    <nav class="d-flex flex-row align-items-center w-100">
+        <div class="createProductNav">Stwórz nowy produkt</div>
+        <div class="deleteProductNav">usuń produkt</div>
+        <div class="createCouponNav">Stwórz nowy kupon</div>
+    </nav>
+    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill adminPanelMain">
+        <div id="createProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+            <h2 class="mb-4">Stwórz nowy produkt</h2>
+            <form action="createProduct.php" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
+                <input type="text" name="productName" placeholder="Nazwa produktu" class="mb-3 form-control w-75">
+                <input type="number" inputmode="decimal" name="productPrice" placeholder="Cena produktu" class="mb-3 form-control w-75">
+                <label for="productType" class="mb-2">Wybierz typ produktu:</label>
+                <select name="productType" class="mb-3 form-control w-75">
+                    <?php
+                        $query = "SELECT id, typ FROM typy_produktow";
+                        $types = mysqli_query($conn, $query);
+                        while($row = mysqli_fetch_array($types)) {
+                            echo "<option value='$row[id]'>$row[typ]</option>";
+                        }
+                    ?>
+                </select>
+                <label for="productImage" class="mb-2">Wybierz zdjęcie produktu:</label>
+                <input type="file" name="productImage" accept=".jpg, .jpeg, .png" class="mb-3 form-control w-75">
+                <button type="submit" class="btn btn-primary">Stwórz produkt</button>
+            </form>
+
+        </div>
+        <div id="deleteProduct" class="adminPanelSection d-flex flex-column align-items-center d-none">
+            <h2 class="mb-4">Usuń produkt</h2>
+            <form action="deleteProduct.php" method="POST" class="d-flex flex-column align-items-center">
+                <select name="productId" class="mb-3 form-control w-50">
+                    <?php
+                        $query = "SELECT id, nazwa FROM produkty";
+                        $products = mysqli_query($conn, $query);
+                        while($row = mysqli_fetch_array($products)) {
+                            echo "<option value='$row[id]'>$row[nazwa]</option>";
+                        }
+                    ?>
+                </select>
+                <button type="submit" class="btn btn-danger">Usuń produkt</button>
+            </form>
+        </div>
+        <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center">
+            <h2 class="mb-4">Stwórz nowy kupon</h2>
+            <form action="createCoupon.php" method="POST" class="d-flex flex-column align-items-center">
+                <input type="text" name="couponCode" placeholder="Kod kuponu" class="mb-3 form-control w-50">
+                <input type="number" name="couponDiscount" placeholder="Zniżka (w procentach)" class="mb-3 form-control w-50">
+                <button type="submit" class="btn btn-primary">Stwórz kupon</button>
+            </form>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -62,6 +110,32 @@ session_start();
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script>
+        const createProductNav = document.querySelector('.createProductNav');
+        const deleteProductNav = document.querySelector('.deleteProductNav');
+        const createCouponNav = document.querySelector('.createCouponNav');
+        const createProductSection = document.getElementById('createProduct');
+        const deleteProductSection = document.getElementById('deleteProduct');
+        const createCouponSection = document.getElementById('createCoupon');
+
+        createProductNav.addEventListener('click', () => {
+            createProductSection.classList.remove('d-none');
+            deleteProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+        });
+
+        deleteProductNav.addEventListener('click', () => {
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.remove('d-none');
+            createCouponSection.classList.add('d-none');
+        });
+
+        createCouponNav.addEventListener('click', () => {
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.add('d-none');
+            createCouponSection.classList.remove('d-none');
+        });
+    </script>
 </body>
 </html>
 
