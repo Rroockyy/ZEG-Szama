@@ -64,44 +64,15 @@ session_start();
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
     </footer>
 
-    <?php
-    if (!isset($_SESSION['cart'])) {
-        $_SESSION['cart'] = [];
-    }
-
-    $totalItems = 0;
-    $totalPrice = 0;
-
-    foreach ($_SESSION['cart'] as $item) {
-        $totalItems += $item['quantity'];
-        $totalPrice += $item['price'] * $item['quantity'];
-    }
-    ?>
-
-    <div id="cartBox" class="<?php echo $totalItems > 0 ? '' : 'd-none'; ?>">
-        
+    <div id="cartBox" class="d-none">
         <div id="cartSummary">
-            <span id="cartItems"><?php echo $totalItems; ?></span> produktów |
-            <span id="cartTotal"><?php echo number_format($totalPrice, 2); ?></span> zł
+            <span id="cartItems">0</span> produktów |
+            <span id="cartTotal">0.00</span> zł
         </div>
 
         <div id="cartExpanded" class="d-none">
-            
-            <div id="cartItemsList">
-                <?php
-                foreach ($_SESSION['cart'] as $item) {
-                    echo "
-                    <div class='cartItem'>
-                        <img src='src/{$item['image']}' width='50'>
-                        <div>
-                            <div>{$item['name']}</div>
-                            <div>{$item['quantity']} x {$item['price']} zł</div>
-                        </div>
-                    </div>
-                    ";
-                }
-                ?>
-            </div>
+
+            <div id="cartItemsList"></div>
 
             <a href='cart.php' class='btn btn-danger w-100 mt-2'>
                 Przejdź do koszyka
@@ -111,41 +82,117 @@ session_start();
     </div>
 
     <script>
-    const cartBox = document.getElementById("cartBox");
-    const cartSummary = document.getElementById("cartSummary");
-    const cartExpanded = document.getElementById("cartExpanded");
+        const cartBox = document.getElementById("cartBox");
+        const cartSummary = document.getElementById("cartSummary");
+        const cartExpanded = document.getElementById("cartExpanded");
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+        const cartItemsList = document.getElementById("cartItemsList");
 
-    cartSummary.addEventListener("click", () => {
-        cartExpanded.classList.toggle("d-none");
-    });
+        function getCart() {
+            return JSON.parse(localStorage.getItem("cart")) || [];
+        }
 
-    document.querySelectorAll(".addToCartBtn").forEach(btn => {
+        function saveCart(cart) {
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
 
-        btn.addEventListener("click", () => {
-            const formData = new FormData();
+        function renderCart() {
 
-            formData.append("name", btn.dataset.name);
-            formData.append("price", btn.dataset.price);
-            formData.append("image", btn.dataset.image);
+            const cart = getCart();
 
-            fetch("cart.php", {
-                method: "POST",
-                body: formData
-            })
-            .then(res => res.json())
-            .then(data => {
+            let totalItems = 0;
+            let totalPrice = 0;
 
+            cartItemsList.innerHTML = "";
+
+            cart.forEach(item => {
+
+                totalItems += item.quantity;
+                totalPrice += item.price * item.quantity;
+
+                const images = item.image.split(",");
+
+                let imagesHTML = "";
+
+                images.forEach(img => {
+                    imagesHTML += `
+                        <img 
+                            src="src/${img.trim()}" 
+                            width="50"
+                            class="m-1 rounded"
+                        >
+                    `;
+                });
+
+                cartItemsList.innerHTML += `
+                    <div class="cartItem d-flex align-items-center mb-2">
+
+                        <div class="d-flex flex-wrap me-2">
+                            ${imagesHTML}
+                        </div>
+
+                        <div>
+                            <div>${item.name}</div>
+                            <div>${item.quantity} x ${item.price} zł</div>
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            cartItems.innerText = totalItems;
+            cartTotal.innerText = totalPrice.toFixed(2);
+
+            if (totalItems > 0) {
                 cartBox.classList.remove("d-none");
+            }
+            else {
+                cartBox.classList.add("d-none");
+            }
+        }
 
-                document.getElementById("cartItems").innerText = data.items;
-                document.getElementById("cartTotal").innerText = data.total;
+        function addToCart(name, price, image) {
 
-                document.getElementById("cartItemsList").innerHTML = data.html;
+            let cart = getCart();
+
+            const existing = cart.find(item => item.name === name);
+
+            if (existing) {
+                existing.quantity++;
+            }
+            else {
+                cart.push({
+                    name: name,
+                    price: parseFloat(price),
+                    image: image,
+                    quantity: 1
+                });
+            }
+
+            saveCart(cart);
+            renderCart();
+        }
+
+        cartSummary.addEventListener("click", () => {
+            cartExpanded.classList.toggle("d-none");
+        });
+
+        document.querySelectorAll(".addToCartBtn").forEach(btn => {
+
+            btn.addEventListener("click", () => {
+
+                addToCart(
+                    btn.dataset.name,
+                    btn.dataset.price,
+                    btn.dataset.image
+                );
+
             });
 
         });
 
-    });
+        renderCart();
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>

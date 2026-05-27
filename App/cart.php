@@ -47,6 +47,7 @@ session_start();
     </header>
     <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
         <h1 class="mt-5">Twój koszyk</h1>
+        <div id="cartPage"></div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -60,6 +61,113 @@ session_start();
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
     </footer>
+
+    <script>
+        const cartPage = document.getElementById("cartPage");
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem("cart")) || [];
+        }
+
+        function renderCartPage() {
+
+            const cart = getCart();
+
+            if (cart.length === 0) {
+                cartPage.innerHTML = `
+                    <div class="alert alert-info">
+                        Koszyk jest pusty
+                    </div>
+                `;
+                return;
+            }
+
+            let total = 0;
+
+            cartPage.innerHTML = "";
+
+            cart.forEach((item, index) => {
+
+                total += item.price * item.quantity;
+
+                const images = item.image.split(",");
+
+                let imagesHTML = "";
+
+                images.forEach(img => {
+
+                    imagesHTML += `
+                        <img 
+                            src="src/${img.trim()}" 
+                            width="80"
+                            class="m-1 rounded"
+                        >
+                    `;
+
+                });
+
+                cartPage.innerHTML += `
+
+                    <div class="cartProduct border rounded p-3 m-3">
+
+                        <div class="d-flex flex-wrap mb-2">
+                            ${imagesHTML}
+                        </div>
+
+                        <h3>${item.name}</h3>
+
+                        <p>
+                            ${item.quantity} x ${item.price} zł
+                        </p>
+
+                        <p>
+                            Razem: ${(item.price * item.quantity).toFixed(2)} zł
+                        </p>
+
+                        <button 
+                            class="btn btn-danger"
+                            onclick="removeItem(${index})"
+                        >
+                            Usuń
+                        </button>
+
+                    </div>
+
+                `;
+            });
+
+            cartPage.innerHTML += `
+
+                <div id="cartTotal" class="m-3 p-3 border rounded d-flex flex-row justify-content-center align-items-center gap-5">
+
+                    <h2>
+                        Suma: ${total.toFixed(2)} zł
+                    </h2>
+
+                    <button
+                        class="btn btn-danger"
+                        onclick="alert('Funkcja realizacji zamówienia nie jest jeszcze zaimplementowana.')" 
+                    >
+                        Zamów i zapłać
+                    </button>
+                </div>
+
+            `;
+        }
+
+        function removeItem(index) {
+
+            let cart = getCart();
+
+            cart.splice(index, 1);
+
+            localStorage.setItem("cart", JSON.stringify(cart));
+
+            renderCartPage();
+        }
+
+        renderCartPage();
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </body>
 </html>

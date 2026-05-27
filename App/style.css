@@ -176,7 +176,7 @@ a div.itemsType{
     right: 20px;
     bottom: 75px;
     width: 280px;
-    background: rgba(255, 154, 154, 0.466);
+    background: rgba(255, 154, 154, 0.795);
     border-radius: 12px;
     box-shadow: 0 0 10px rgba(0,0,0,0.2);
     padding: 12px;
@@ -206,4 +206,12 @@ a div.itemsType{
 
 .cartItem img {
     border-radius: 8px;
+}
+
+.cartProduct{
+    float: left;
+}
+
+#cartTotal{
+    clear: both;
 }
