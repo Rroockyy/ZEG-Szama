@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 22, 2026 at 11:43 PM
+-- Generation Time: Maj 26, 2026 at 11:34 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -200,8 +200,7 @@ CREATE TABLE `uzytkownicy` (
 --
 
 INSERT INTO `uzytkownicy` (`id`, `nazwa_uzytkownika`, `Email`, `telefon`, `haslo`, `dostep`, `status`) VALUES
-(6, 'test2', 'ab@cd.ef', NULL, '$2y$10$uXemfutF9Cqo06fp2hnwrOsf3M0sKS5q2TYduHnOVlWRmWYymFjK.', 2, 1),
-(7, 'Rogal', 'rogal@gmail.com', '987654321', '$2y$10$4yX6wxwJk8Fv5DcA8kCwEu8VeNSx6UaGNtQc4WPp.ulEnE1d3ieLm', 1, 1);
+(8, 'Rogal', 'rogal@gmail.pl', '123456789', '$2y$10$h1GlFED/PV.7cJJDJTl5ZeLPTYoc/Uh3HqorCw/6IkQTFEOzjbNre', 2, 1);
 
 -- --------------------------------------------------------
 
@@ -350,7 +349,7 @@ ALTER TABLE `typy_produktow`
 -- AUTO_INCREMENT for table `uzytkownicy`
 --
 ALTER TABLE `uzytkownicy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `zamowienia`
