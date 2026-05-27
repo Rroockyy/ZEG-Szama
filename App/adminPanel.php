@@ -46,9 +46,9 @@ session_start();
         ?>
     </header>
     <nav class="d-flex flex-row align-items-center w-100">
-        <div class="createProductNav">Stwórz nowy produkt</div>
-        <div class="deleteProductNav">usuń produkt</div>
-        <div class="createCouponNav">Stwórz nowy kupon</div>
+        <div class="createProductNav" id="createProductNav" name="createProductNav">Stwórz nowy produkt</div>
+        <div class="deleteProductNav" id="deleteProductNav" name="deleteProductNav">usuń produkt</div>
+        <div class="createCouponNav" id="createCouponNav" name="createCouponNav">Stwórz nowy kupon</div>
     </nav>
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill adminPanelMain">
         <div id="createProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
@@ -72,26 +72,50 @@ session_start();
             </form>
 
         </div>
-        <div id="deleteProduct" class="adminPanelSection d-flex flex-column align-items-center d-none">
+        <div id="deleteProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Usuń produkt</h2>
-            <form action="deleteProduct.php" method="POST" class="d-flex flex-column align-items-center">
-                <select name="productId" class="mb-3 form-control w-50">
+            <form method="GET" class="d-flex flex-column align-items-center w-100">
+                <select name="categoryFilter" class="mb-3 form-control w-100" onchange="this.form.submit()">
+                    <option value="">-- Wybierz kategorię --</option>
                     <?php
-                        $query = "SELECT id, nazwa FROM produkty";
-                        $products = mysqli_query($conn, $query);
-                        while($row = mysqli_fetch_array($products)) {
-                            echo "<option value='$row[id]'>$row[nazwa]</option>";
+                        $query = "SELECT id, typ FROM typy_produktow";
+                        $types = mysqli_query($conn, $query);
+                        while($row = mysqli_fetch_array($types)) {
+                            $selected = isset($_GET['categoryFilter']) && $_GET['categoryFilter'] == $row['id'] ? 'selected' : '';
+                            echo "<option value='$row[id]' $selected>$row[typ]</option>";
                         }
                     ?>
                 </select>
-                <button type="submit" class="btn btn-danger">Usuń produkt</button>
             </form>
+            
+            <?php
+                if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
+                    $categoryId = intval($_GET['categoryFilter']);
+                    $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $categoryId ORDER BY id ASC";
+                    $products = mysqli_query($conn, $query2);
+                    
+                    echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
+                    while($row2 = mysqli_fetch_array($products)) {
+                        echo "<div class='productBox";
+                            echo "'>";
+                        echo "<img src='src/$row2[zdjecie]' alt='$row2[nazwa]' class='w-50'>";
+                        echo "<span>$row2[nazwa]</span>";
+                        echo "<span>$row2[cena]zł</span>";
+                        echo "<form action='deleteProduct.php' method='POST' style='margin-top: 10px;'>";
+                        echo "<input type='hidden' name='productId' value='$row2[id]'>";
+                        echo "<button type='submit' class='btn btn-danger btn-sm'>Usuń</button>";
+                        echo "</form>";
+                        echo "</div>";
+                    }
+                    echo "</div>";
+                }
+            ?>
         </div>
-        <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center">
+        <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Stwórz nowy kupon</h2>
             <form action="createCoupon.php" method="POST" class="d-flex flex-column align-items-center">
-                <input type="text" name="couponCode" placeholder="Kod kuponu" class="mb-3 form-control w-50">
-                <input type="number" name="couponDiscount" placeholder="Zniżka (w procentach)" class="mb-3 form-control w-50">
+                <input type="text" name="couponCode" placeholder="nazwa" class="mb-3 form-control w-75">
+                <input type="number" name="couponDiscount" placeholder="cena" class="mb-3 form-control w-75">
                 <button type="submit" class="btn btn-primary">Stwórz kupon</button>
             </form>
         </div>
@@ -135,6 +159,13 @@ session_start();
             deleteProductSection.classList.add('d-none');
             createCouponSection.classList.remove('d-none');
         });
+        //to ci pobiera jakis parametr url i na jego podstawie wchodzi ci w odpowiednia zakladke bo bez tego to cie wywala do kuponow 
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('categoryFilter') && urlParams.get('categoryFilter') !== '') {
+            deleteProductSection.classList.remove('d-none');
+            createProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+        }
     </script>
 </body>
 </html>
