@@ -53,7 +53,7 @@ session_start();
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill adminPanelMain">
         <div id="createProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Stwórz nowy produkt</h2>
-            <form action="createProduct.php" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
+            <form action="#" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
                 <input type="text" name="productName" placeholder="Nazwa produktu" class="mb-3 form-control w-75">
                 <input type="number" inputmode="decimal" name="productPrice" placeholder="Cena produktu" class="mb-3 form-control w-75">
                 <label for="productType" class="mb-2">Wybierz typ produktu:</label>
@@ -68,13 +68,62 @@ session_start();
                 </select>
                 <label for="productImage" class="mb-2">Wybierz zdjęcie produktu:</label>
                 <input type="file" name="productImage" accept=".jpg, .jpeg, .png" class="mb-3 form-control w-75">
-                <button type="submit" class="btn btn-primary">Stwórz produkt</button>
+                <button type="submit" class="btn btn-primary" id="createProductBtn" name="createProductBtn">Stwórz produkt</button>
+                <?php
+if (isset($_POST['createProductBtn'])) {
+    $name = $_POST['productName'] ?? '';
+    $price = $_POST['productPrice'] ?? '';
+    $type = $_POST['productType'] ?? ''; 
+    $image = $_FILES['productImage'] ?? null;
+
+    if ($name && $price && $type && $image) {
+
+        $prefixes = [
+            1 => 'b', 
+            2 => 'h',
+            3 => 't', 
+            4 => 'n' 
+        ];
+
+        $prefix = $prefixes[$type] ?? 'p';
+
+        $nextId = 1; 
+        $statusQuery = "SHOW TABLE STATUS LIKE 'produkty'";
+        if ($statusResult = mysqli_query($conn, $statusQuery)) {
+            $row = mysqli_fetch_assoc($statusResult);
+            $nextId = $row['Auto_increment'];
+        }
+
+        $extension = pathinfo($image['name'], PATHINFO_EXTENSION);
+        $imageName = $prefix . $nextId . '.' . $extension;
+
+        $imagePath = 'src/' . $imageName;
+        if (move_uploaded_file($image['tmp_name'], $imagePath)) {
+            $query = "INSERT INTO produkty (nazwa, cena, typ, zdjecie) VALUES (?, ?, ?, ?)";
+            if ($stmt = mysqli_prepare($conn, $query)) {
+                
+                mysqli_stmt_bind_param($stmt, 'sdis', $name, $price, $type, $imageName);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+                
+                echo '<div class="alert alert-success mt-3">Produkt został stworzony.</div>';
+            } else {
+                echo '<div class="alert alert-danger mt-3">Błąd bazy danych.</div>';
+            }
+        } else {
+            echo '<div class="alert alert-danger mt-3">Błąd podczas przesyłania pliku.</div>';
+        }
+    } else {
+        echo '<div class="alert alert-danger mt-3">Wszystkie pola są wymagane.</div>';
+    }
+}
+?>
             </form>
 
         </div>
         <div id="deleteProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Usuń produkt</h2>
-            <form method="GET" class="d-flex flex-column align-items-center w-100">
+            <form method="GET" action="#" class="d-flex flex-column align-items-center w-100">
                 <select name="categoryFilter" class="mb-3 form-control w-100" onchange="this.form.submit()">
                     <option value="">-- Wybierz kategorię --</option>
                     <?php
@@ -88,35 +137,46 @@ session_start();
                 </select>
             </form>
             
-            <?php
-                if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
-                    $categoryId = intval($_GET['categoryFilter']);
-                    $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $categoryId ORDER BY id ASC";
-                    $products = mysqli_query($conn, $query2);
-                    
-                    echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
-                    while($row2 = mysqli_fetch_array($products)) {
-                        echo "<div class='productBox";
-                            echo "'>";
-                        echo "<img src='src/$row2[zdjecie]' alt='$row2[nazwa]' class='w-50'>";
-                        echo "<span>$row2[nazwa]</span>";
-                        echo "<span>$row2[cena]zł</span>";
-                        echo "<form action='deleteProduct.php' method='POST' style='margin-top: 10px;'>";
-                        echo "<input type='hidden' name='productId' value='$row2[id]'>";
-                        echo "<button type='submit' class='btn btn-danger btn-sm'>Usuń</button>";
-                        echo "</form>";
-                        echo "</div>";
-                    }
-                    echo "</div>";
-                }
-            ?>
+<?php
+    // musialem przesunac usuwanie na gorze zeby produkt fajnie znikal a nie ze usuwasz i cie do indii daje
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
+        $productId = intval($_POST['productId']);
+
+        $deleteQuery = "DELETE FROM produkty WHERE id = $productId";
+        mysqli_query($conn, $deleteQuery);
+
+        header("Location: " . $_SERVER['PHP_SELF'] . (isset($_GET['categoryFilter']) ? "?categoryFilter=" . $_GET['categoryFilter'] : ""));
+        exit();
+    }
+
+    if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
+        $categoryId = intval($_GET['categoryFilter']);
+        $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $categoryId ORDER BY id ASC";
+        $products = mysqli_query($conn, $query2);
+        
+        echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
+        while($row2 = mysqli_fetch_array($products)) {
+            echo "<div class='productBox'>";
+            echo "<img src='src/{$row2['zdjecie']}' alt='{$row2['nazwa']}' class='w-50'>";
+            echo "<span>{$row2['nazwa']}</span>";
+            echo "<span>{$row2['cena']} zł</span>";
+            
+            echo "<form action='' method='POST' style='margin-top: 10px;'>";
+            echo "<input type='hidden' name='productId' value='{$row2['id']}'>";
+            echo "<button type='submit' name='deleteProduct' class='btn btn-danger btn-sm'>Usuń</button>";
+            echo "</form>";
+            echo "</div>";
+        }
+        echo "</div>";
+    }
+?>
         </div>
         <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Stwórz nowy kupon</h2>
-            <form action="createCoupon.php" method="POST" class="d-flex flex-column align-items-center">
+            <form action="#" method="POST" class="d-flex flex-column align-items-center">
                 <input type="text" name="couponCode" placeholder="nazwa" class="mb-3 form-control w-75">
                 <input type="number" name="couponDiscount" placeholder="cena" class="mb-3 form-control w-75">
-                <button type="submit" class="btn btn-primary">Stwórz kupon</button>
+                <button type="submit" class="btn btn-primary" id="createCouponBtn" name="createCouponBtn">Stwórz kupon</button>
             </form>
         </div>
     </main>
