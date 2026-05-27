@@ -59,6 +59,29 @@ header > a > img{
     width: 75%;
     height: 40px;
 }
+nav div{
+    background-color: rgb(207, 207, 207);
+    color: black;
+    border: rgb(207, 207, 207) solid;
+    padding: 10px;
+    height: 80px;
+    width: 150px;
+    text-align: center;
+    
+}
+nav div:hover{
+    background-color: rgb(128, 128, 128);
+    color: black;
+    border: rgb(207, 207, 207) solid;
+    padding: 10px;
+    height: 80px;
+    width: 150px;
+    text-align: center;
+    
+}
+.adminPanelMain{
+    background-color: rgb(255, 255, 255);
+}
 
 #CreateAccountBtn:hover, #LogInBtn:hover{
     box-shadow: black 2px 2px;
