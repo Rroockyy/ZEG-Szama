@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 28, 2026 at 12:21 AM
+-- Generation Time: Maj 28, 2026 at 01:17 AM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -59,7 +59,8 @@ CREATE TABLE `kupony` (
 INSERT INTO `kupony` (`id`, `nazwa`, `cena`) VALUES
 (1, '2 hot-dogi', 10),
 (2, 'Bułka szynka + Bułka ser', 5),
-(3, 'Każdy rozmiar Tymbarków', 13);
+(3, 'Każdy rozmiar Tymbarków', 13),
+(4, 'Wszystkie tosty!', 3);
 
 -- --------------------------------------------------------
 
@@ -85,7 +86,11 @@ INSERT INTO `kupony_produkty` (`id`, `id_kuponu`, `id_produktu`) VALUES
 (5, 3, 17),
 (6, 3, 19),
 (7, 3, 20),
-(8, 3, 21);
+(8, 3, 21),
+(9, 4, 15),
+(10, 4, 16),
+(11, 4, 14),
+(12, 4, 13);
 
 -- --------------------------------------------------------
 
@@ -217,6 +222,13 @@ CREATE TABLE `zamowienia` (
   `cena` decimal(10,2) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `zamowienia`
+--
+
+INSERT INTO `zamowienia` (`numer_zamowienia`, `uzytkownik_id`, `data`, `status`, `metoda_platnosci`, `cena`) VALUES
+(41, 8, '2026-05-28 00:46:36', 1, 'Karta przy odbiorze', 3.00);
+
 -- --------------------------------------------------------
 
 --
@@ -229,6 +241,16 @@ CREATE TABLE `zamowienia_produkty` (
   `ilosc` int(11) NOT NULL,
   `produkt_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `zamowienia_produkty`
+--
+
+INSERT INTO `zamowienia_produkty` (`id`, `numer_zamowienia`, `ilosc`, `produkt_id`) VALUES
+(1, 41, 1, 15),
+(2, 41, 1, 16),
+(3, 41, 1, 14),
+(4, 41, 1, 13);
 
 --
 -- Indeksy dla zrzutów tabel
@@ -321,19 +343,19 @@ ALTER TABLE `dostep`
 -- AUTO_INCREMENT for table `kupony`
 --
 ALTER TABLE `kupony`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `kupony_produkty`
 --
 ALTER TABLE `kupony_produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT for table `produkty`
 --
 ALTER TABLE `produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
 
 --
 -- AUTO_INCREMENT for table `status_zamowienia`
@@ -357,13 +379,13 @@ ALTER TABLE `uzytkownicy`
 -- AUTO_INCREMENT for table `zamowienia`
 --
 ALTER TABLE `zamowienia`
-  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=41;
+  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `zamowienia_produkty`
 --
 ALTER TABLE `zamowienia_produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

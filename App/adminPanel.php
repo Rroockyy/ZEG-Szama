@@ -45,17 +45,39 @@ session_start();
         }
         ?>
     </header>
-    <nav class="d-flex flex-row align-items-center w-100">
-        <div class="createProductNav" id="createProductNav" name="createProductNav">Stwórz nowy produkt</div>
-        <div class="deleteProductNav" id="deleteProductNav" name="deleteProductNav">usuń produkt</div>
-        <div class="createCouponNav" id="createCouponNav" name="createCouponNav">Stwórz nowy kupon</div>
+    <nav class="adminNav">
+        <div class="navItem">
+            Produkty
+            <div class="dropdown">
+                <div class="createProductNav">Stwórz nowy produkt</div>
+                <div class="deleteProductNav">Usuń produkt</div>
+                <div class="editProductNav">Edytuj produkt</div>
+            </div>
+        </div>
+
+        <div class="navItem">
+            Kupony
+            <div class="dropdown">
+                <div class="createCouponNav">Stwórz nowy kupon</div>
+                <div class="deleteCouponNav">Usuń kupon</div>
+                <div class="editCouponNav">Edytuj kupon</div>
+            </div>
+        </div>
+
+        <div class="navItem">
+            Zarządzanie
+            <div class="dropdown">
+                <div class="manageOrdersNav">Zarządzaj zamówieniami</div>
+                <div class="manageUsersNav">Zarządzaj użytkownikami</div>
+            </div>
+        </div>
     </nav>
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill adminPanelMain">
         <div id="createProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
             <h2 class="mb-4">Stwórz nowy produkt</h2>
             <form action="#" method="POST" enctype="multipart/form-data" class="d-flex flex-column align-items-center">
                 <input type="text" name="productName" placeholder="Nazwa produktu" class="mb-3 form-control w-75">
-                <input type="number" inputmode="decimal" name="productPrice" placeholder="Cena produktu" class="mb-3 form-control w-75">
+                <input type="number" inputmode="decimal" name="productPrice" step="0.01" placeholder="Cena produktu" class="mb-3 form-control w-75">
                 <label for="productType" class="mb-2">Wybierz typ produktu:</label>
                 <select name="productType" class="mb-3 form-control w-75">
                     <?php
@@ -168,7 +190,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         echo "<span>{$row2['nazwa']}</span>";
         echo "<span>{$row2['cena']} zł</span>";
         
-        echo "<form action='' method='POST' style='margin-top: 10px;'>";
+        echo "<form action='' method='POST' style='margin-top: 10px;' onsubmit='return confirm(\"Na pewno chcesz usunąć ten produkt?\")'>";
         echo "<input type='hidden' name='productId' value='{$row2['id']}'>";
         echo "<button type='submit' name='deleteProduct' class='btn btn-danger btn-sm'>Usuń</button>";
         echo "</form>";
@@ -179,13 +201,87 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
 ?>
         </div>
         <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded">
-            <h2 class="mb-4">Stwórz nowy kupon</h2>
-            <form action="#" method="POST" class="d-flex flex-column align-items-center">
-                <input type="text" name="couponCode" placeholder="nazwa" class="mb-3 form-control w-75">
-                <input type="number" name="couponDiscount" placeholder="cena" class="mb-3 form-control w-75">
-                <button type="submit" class="btn btn-primary" id="createCouponBtn" name="createCouponBtn">Stwórz kupon</button>
-            </form>
+        <h2 class="mb-4">Stwórz nowy kupon</h2>
+
+        <form method="POST" class="d-flex flex-column align-items-center w-100">
+            <input type="text" name="couponCode" placeholder="nazwa" class="mb-3 form-control w-75" required>
+            <input type="number" name="couponDiscount" placeholder="cena" class="mb-3 form-control w-75" required>
+
+            <button type="button" id="openProductPicker" class="btn btn-secondary mb-3">
+                Dodaj produkty
+            </button>
+
+            <div id="selectedProductsPreview" class="mb-3"></div>
+
+            <input type="hidden" name="selectedProducts" id="selectedProducts">
+
+            <button type="submit" name="createCouponBtn" class="btn btn-primary">
+                Stwórz kupon
+            </button>
+            <?php
+                if (isset($_POST['createCouponBtn'])) {
+
+                $code = $_POST['couponCode'];
+                $discount = $_POST['couponDiscount'];
+                $products = $_POST['selectedProducts']; // "1,2,3"
+
+                if ($code && $discount && $products) {
+
+                    $stmt = mysqli_prepare($conn, "INSERT INTO kupony (nazwa, cena) VALUES (?, ?)");
+                    mysqli_stmt_bind_param($stmt, "si", $code, $discount);
+                    mysqli_stmt_execute($stmt);
+
+                    $couponId = mysqli_insert_id($conn);
+                    mysqli_stmt_close($stmt);
+
+                    $productArray = explode(',', $products);
+
+                    $stmt2 = mysqli_prepare($conn, "INSERT INTO kupony_produkty (id_kuponu, id_produktu) VALUES (?, ?)");
+
+                    foreach ($productArray as $productId) {
+                        $pid = intval($productId);
+                        mysqli_stmt_bind_param($stmt2, "ii", $couponId, $pid);
+                        mysqli_stmt_execute($stmt2);
+                    }
+
+                    mysqli_stmt_close($stmt2);
+
+                    echo "<div class='alert alert-success'>Kupon dodany</div>";
+
+                } else {
+                    echo "<div class='alert alert-danger'>Wybierz min. 1 produkt</div>";
+                }
+            }
+            ?>
+        </form>
+    </div>
+
+    <div id="productModal" class="modalCustom d-none">
+        <div class="modalContent card p-3">
+            <h4>Wybierz produkty</h4>
+
+            <select id="couponCategoryFilter" class="form-control mb-2">
+                <option value="">-- kategoria --</option>
+                <?php
+                    $query = "SELECT id, typ FROM typy_produktow";
+                    $types = mysqli_query($conn, $query);
+                    while($row = mysqli_fetch_array($types)) {
+                        echo "<option value='{$row['id']}'>{$row['typ']}</option>";
+                    }
+                ?>
+            </select>
+
+            <div id="productList" class="mb-2" style="max-height:300px; overflow:auto;"></div>
+
+            <button type="button" id="confirmProducts" class="btn btn-success">
+                Dodaj wybrane
+            </button>
+
+            <button type="button" id="closeModal" class="btn btn-danger mt-2">
+                Zamknij
+            </button>
         </div>
+    </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -210,18 +306,21 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const createCouponSection = document.getElementById('createCoupon');
 
         createProductNav.addEventListener('click', () => {
+            showTab('createProduct');
             createProductSection.classList.remove('d-none');
             deleteProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
         });
 
         deleteProductNav.addEventListener('click', () => {
+            showTab('deleteProduct');
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.remove('d-none');
             createCouponSection.classList.add('d-none');
         });
 
         createCouponNav.addEventListener('click', () => {
+            showTab('createCoupon');
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.add('d-none');
             createCouponSection.classList.remove('d-none');
@@ -232,6 +331,78 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.remove('d-none');
             createProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
+        }
+
+        function showTab(tab) {
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+
+            if (tab === 'createProduct') createProductSection.classList.remove('d-none');
+            if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
+            if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
+
+            localStorage.setItem('activeTab', tab);
+        }
+
+
+        const modal = document.getElementById('productModal');
+        const openBtn = document.getElementById('openProductPicker');
+        const closeBtn = document.getElementById('closeModal');
+        const categoryFilter = document.getElementById('couponCategoryFilter');
+        const productList = document.getElementById('productList');
+        const selectedProductsInput = document.getElementById('selectedProducts');
+        const preview = document.getElementById('selectedProductsPreview');
+
+        let selected = [];
+
+        openBtn.addEventListener('click', () => {
+            modal.classList.remove('d-none');
+            loadProducts();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            modal.classList.add('d-none');
+        });
+
+        categoryFilter.addEventListener('change', loadProducts);
+
+        function loadProducts() {
+            const cat = categoryFilter.value;
+
+            fetch(`getProducts.php?cat=${cat}`)
+                .then(res => res.text())
+                .then(html => {
+                    productList.innerHTML = html;
+                });
+        }
+
+        function toggleProduct(id, name) {
+            if (selected.includes(id)) {
+                selected = selected.filter(x => x !== id);
+            } else {
+                selected.push(id);
+            }
+
+            updateSelected();
+        }
+
+        function updateSelected() {
+            selectedProductsInput.value = selected.join(',');
+
+            preview.innerHTML = selected.map(id =>
+                `<span class="badge bg-primary m-1">ID: ${id}</span>`
+            ).join('');
+        }
+
+        document.getElementById('confirmProducts').addEventListener('click', () => {
+            modal.classList.add('d-none');
+        });
+
+        const savedTab = localStorage.getItem('activeTab');
+
+        if (savedTab) {
+            showTab(savedTab);
         }
     </script>
 </body>

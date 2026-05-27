@@ -95,7 +95,7 @@ foreach ($cart as $item) {
         });
 
         } else {
-            $products = $item['products']; // array z JS
+            $products = $item['products'];
         }
 
         foreach ($products as $productId) {

@@ -243,3 +243,61 @@ a div.itemsType{
     overflow-y: auto;
     max-height: 300px;
 }
+
+.modalCustom {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modalContent {
+    width: 400px;
+    max-height: 80vh;
+    overflow: auto;
+}
+
+.adminNav {
+    display: flex;
+    gap: 20px;
+    background: #f8f9fa;
+    padding: 10px;
+}
+
+.navItem {
+    position: relative;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.dropdown {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: -30px;
+    background: white;
+    min-width: 175px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    z-index: 1000;
+    height: auto;
+}
+
+.dropdown div {
+    padding: 10px;
+    cursor: pointer;
+}
+
+.dropdown div:hover {
+    background: #f0f0f0;
+}
+
+.navItem:hover .dropdown {
+    display: block;
+}
