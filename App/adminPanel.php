@@ -159,7 +159,6 @@ if (isset($_POST['createProductBtn'])) {
                 </select>
             </form>    
 <?php
-// musialem przesunac usuwanie na gorze zeby produkt fajnie znikal a nie ze usuwasz i cie do indii daje
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteProduct'])) {
     $productId = intval($_POST['productId']);
     // usuwa zdjęcie produktu z serwera
@@ -384,7 +383,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
 
                 $deleteCouponQuery = "DELETE FROM kupony WHERE id = $couponId";
                 mysqli_query($conn, $deleteCouponQuery);
-                // musialem zamiast headera zrobic to w js jaka kara
+                
                 echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "?tab=deleteCoupon';</script>";
                 exit();
             }
@@ -425,6 +424,107 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
                 ?>
             </div>
         </div>
+
+        <div id="editCoupon" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+            <h2 class="mb-4">Modyfikuj kupon</h2>
+            <?php
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updateCouponBtn'])) {
+                $cId = intval($_POST['editCouponId']);
+                $cCode = $_POST['editCouponCode'] ?? '';
+                $cDiscount = $_POST['editCouponDiscount'] ?? '';
+                $cProducts = $_POST['editSelectedProducts'] ?? '';
+
+                if ($cId && $cCode && $cDiscount !== '') {
+                    $updateCouponQuery = "UPDATE kupony SET nazwa = ?, cena = ? WHERE id = ?";
+                    if ($stmt = mysqli_prepare($conn, $updateCouponQuery)) {
+                        mysqli_stmt_bind_param($stmt, 'sii', $cCode, $cDiscount, $cId);
+                        if (mysqli_stmt_execute($stmt)) {
+                            
+                            $deleteOldRel = "DELETE FROM kupony_produkty WHERE id_kuponu = $cId";
+                            mysqli_query($conn, $deleteOldRel);
+
+                            if (!empty($cProducts)) {
+                                $productArray = explode(',', $cProducts);
+                                $stmt2 = mysqli_prepare($conn, "INSERT INTO kupony_produkty (id_kuponu, id_produktu) VALUES (?, ?)");
+                                foreach ($productArray as $productId) {
+                                    $pid = intval($productId);
+                                    mysqli_stmt_bind_param($stmt2, "ii", $cId, $pid);
+                                    mysqli_stmt_execute($stmt2);
+                                }
+                                mysqli_stmt_close($stmt2);
+                            }
+
+                            echo '<div class="alert alert-success mb-3">Kupon został pomyślnie zaktualizowany.</div>';
+                        } else {
+                            echo '<div class="alert alert-danger mb-3">Błąd zapisu bazy danych.</div>';
+                        }
+                        mysqli_stmt_close($stmt);
+                    }
+                }
+            }
+            ?>
+            <div class="d-flex flex-wrap justify-content-center w-100">
+                <?php
+                $query = "SELECT 
+                            kupony.id, 
+                            kupony.nazwa, 
+                            kupony.cena,
+                            GROUP_CONCAT(produkty.id) AS produkty_ids,
+                            GROUP_CONCAT(produkty.zdjecie) AS zdjecia 
+                          FROM kupony 
+                          LEFT JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
+                          LEFT JOIN produkty ON kupony_produkty.id_produktu = produkty.id
+                          GROUP BY kupony.id ORDER BY kupony.id DESC";
+                
+                $couponsEdit = mysqli_query($conn, $query);
+                if (mysqli_num_rows($couponsEdit) > 0) {
+                    while($row = mysqli_fetch_array($couponsEdit)) {
+                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3" style="width: 250px;">';
+                        
+                        echo "<div class='d-flex justify-content-center flex-wrap w-100 mb-2'>";
+                        if (!empty($row['zdjecia'])) {
+                            $images = explode(',', $row['zdjecia']);
+                            foreach ($images as $image) {
+                                echo "<img src='src/$image' alt='produkt' class='w-25 m-1' style='max-height: 40px;'>";
+                            }
+                        }
+                        echo '</div>';
+
+                        echo "<form action='#' method='POST' class='w-100 d-flex flex-column'>";
+                        echo "<input type='hidden' name='editCouponId' value='{$row['id']}'>";
+                        
+                        echo "<label class='mb-1 small text-muted text-start w-100'>Nazwa kuponu:</label>";
+                        echo "<input type='text' name='editCouponCode' value='".htmlspecialchars($row['nazwa'])."' class='form-control form-control-sm mb-2' required>";
+                        
+                        echo "<label class='mb-1 small text-muted text-start w-100'>Cena (zł):</label>";
+                        echo "<input type='number' name='editCouponDiscount' value='{$row['cena']}' class='form-control form-control-sm mb-2' required>";
+                        
+                        echo "<button type='button' class='btn btn-secondary btn-sm mb-2 openProductPickerEdit' data-coupon-id='{$row['id']}' data-selected='{$row['produkty_ids']}'>";
+                        echo "Dodaj/Zmień produkty";
+                        echo "</button>";
+                        
+                        echo "<div class='selectedProductsPreviewEdit small mb-2 text-muted' id='previewEdit_{$row['id']}'>";
+                        if(!empty($row['produkty_ids'])) {
+                            $currIds = explode(',', $row['produkty_ids']);
+                            foreach($currIds as $cId) {
+                                echo "<span class='badge bg-primary m-1'>ID: $cId</span>";
+                            }
+                        }
+                        echo "</div>";
+
+                        echo "<input type='hidden' name='editSelectedProducts' id='inputEdit_{$row['id']}' value='{$row['produkty_ids']}'>";
+
+                        echo "<button type='submit' name='updateCouponBtn' class='btn btn-warning btn-sm w-100'>Zapisz</button>";
+                        echo "</form>";
+                        
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<div class="alert alert-info" role="alert">Brak dostępnych kuponów do edycji.</div>';
+                }
+                ?>
+            </div>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -446,70 +546,45 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const editProductNav = document.querySelector('.editProductNav');
         const createCouponNav = document.querySelector('.createCouponNav');
         const deleteCouponNav = document.querySelector('.deleteCouponNav');
+        const editCouponNav = document.querySelector('.editCouponNav');
         
         const createProductSection = document.getElementById('createProduct');
         const deleteProductSection = document.getElementById('deleteProduct');
         const editProductSection = document.getElementById('editProduct');
         const createCouponSection = document.getElementById('createCoupon');
         const deleteCouponSection = document.getElementById('deleteCoupon');
+        const editCouponSection = document.getElementById('editCoupon');
 
         deleteCouponNav.addEventListener('click', () => {
             showTab('deleteCoupon');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
-            deleteCouponSection.classList.remove('d-none');
         });
 
         createProductNav.addEventListener('click', () => {
             showTab('createProduct');
-            createProductSection.classList.remove('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
-            deleteCouponSection.classList.add('d-none');
         });
 
         deleteProductNav.addEventListener('click', () => {
             showTab('deleteProduct');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.remove('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
-            deleteCouponSection.classList.add('d-none');
         });
 
         editProductNav.addEventListener('click', () => {
             showTab('editProduct');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.remove('d-none');
-            createCouponSection.classList.add('d-none');
-            deleteCouponSection.classList.add('d-none');
         });
 
         createCouponNav.addEventListener('click', () => {
             showTab('createCoupon');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.remove('d-none');
-            deleteCouponSection.classList.add('d-none');
+        });
+
+        editCouponNav.addEventListener('click', () => {
+            showTab('editCoupon');
         });
 
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('categoryFilter') && urlParams.get('categoryFilter') !== '') {
-            deleteProductSection.classList.remove('d-none');
-            createProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
+            showTab('deleteProduct');
         }
         if (urlParams.has('editCategoryFilter') && urlParams.get('editCategoryFilter') !== '') {
-            editProductSection.classList.remove('d-none');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
+            showTab('editProduct');
         }
         if (urlParams.has('tab')) {
             showTab(urlParams.get('tab'));
@@ -521,12 +596,14 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
             deleteCouponSection.classList.add('d-none');
+            editCouponSection.classList.add('d-none');
 
             if (tab === 'createProduct') createProductSection.classList.remove('d-none');
             if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
             if (tab === 'editProduct') editProductSection.classList.remove('d-none');
             if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
             if (tab === 'deleteCoupon') deleteCouponSection.classList.remove('d-none');
+            if (tab === 'editCoupon') editCouponSection.classList.remove('d-none');
 
             localStorage.setItem('activeTab', tab);
         }
@@ -540,10 +617,25 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const preview = document.getElementById('selectedProductsPreview');
 
         let selected = [];
+        let currentEditingCouponId = null;
 
         openBtn.addEventListener('click', () => {
+            currentEditingCouponId = null;
+            const val = selectedProductsInput.value;
+            selected = val ? val.split(',') : [];
             modal.classList.remove('d-none');
             loadProducts();
+        });
+
+        document.addEventListener('click', function(e) {
+            if(e.target && e.target.classList.contains('openProductPickerEdit')) {
+                currentEditingCouponId = e.target.getAttribute('data-coupon-id');
+                const targetInput = document.getElementById('inputEdit_' + currentEditingCouponId);
+                const val = targetInput.value;
+                selected = val ? val.split(',') : [];
+                modal.classList.remove('d-none');
+                loadProducts();
+            }
         });
 
         closeBtn.addEventListener('click', () => {
@@ -559,10 +651,18 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
                 .then(res => res.text())
                 .then(html => {
                     productList.innerHTML = html;
+                    
+                    const checkboxes = productList.querySelectorAll('input[type="checkbox"]');
+                    checkboxes.forEach(cb => {
+                        if(selected.includes(cb.value)) {
+                            cb.checked = true;
+                        }
+                    });
                 });
         }
 
         function toggleProduct(id, name) {
+            id = String(id);
             if (selected.includes(id)) {
                 selected = selected.filter(x => x !== id);
             } else {
@@ -573,11 +673,23 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         }
 
         function updateSelected() {
-            selectedProductsInput.value = selected.join(',');
-
-            preview.innerHTML = selected.map(id =>
-                `<span class="badge bg-primary m-1">ID: ${id}</span>`
-            ).join('');
+            if (currentEditingCouponId === null) {
+                selectedProductsInput.value = selected.join(',');
+                preview.innerHTML = selected.map(id =>
+                    `<span class="badge bg-primary m-1">ID: ${id}</span>`
+                ).join('');
+            } else {
+                const targetInput = document.getElementById('inputEdit_' + currentEditingCouponId);
+                const targetPreview = document.getElementById('previewEdit_' + currentEditingCouponId);
+                
+                targetInput.value = selected.join(',');
+                targetPreview.innerHTML = selected.map(id =>
+                    `<span class="badge bg-primary m-1">ID: ${id}</span>`
+                ).join('');
+                
+                const triggerBtn = document.querySelector(`.openProductPickerEdit[data-coupon-id="${currentEditingCouponId}"]`);
+                if(triggerBtn) triggerBtn.setAttribute('data-selected', selected.join(','));
+            }
         }
 
         document.getElementById('confirmProducts').addEventListener('click', () => {
@@ -585,9 +697,9 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         });
 
         const savedTab = localStorage.getItem('activeTab');
-            if (savedTab && !urlParams.has('categoryFilter') && !urlParams.has('editCategoryFilter') && !urlParams.has('tab')) {
-                showTab(savedTab);
-            }
+        if (savedTab && !urlParams.has('categoryFilter') && !urlParams.has('editCategoryFilter') && !urlParams.has('tab')) {
+            showTab(savedTab);
+        }
     </script>
 </body>
 </html>
