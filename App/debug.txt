@@ -3,6 +3,6 @@ Array
     [name] => admin1
     [phone] => 987654321
     [email] => admin1@gmail.com
-    [payment] => Karta płatnicza
-    [cart] => [{"id":"4","name":"Bułka Ser","price":3,"image":"b2.jpg","quantity":1}]
+    [payment] => BLIK
+    [cart] => [{"id":"4","name":"Bułka Ser","price":3,"image":"b2.jpg","quantity":1},{"id":"5","name":"Bułka Szynka","price":3,"image":"b3.jpg","quantity":1},{"id":"6","name":"Bułka Szynka Ser","price":4,"image":"b4.jpg","quantity":1},{"id":"14","name":"Tost Szynka","price":2.5,"image":"t2.jpg","quantity":1},{"id":"18","name":"Woda Gaz/N-gaz","price":2.5,"image":"n2.jpg","quantity":5},{"id":"19","name":"Tymbark 2L","price":5,"image":"n3.jpg","quantity":2},{"id":"20","name":"Tymbark Szkło 0,25L","price":2.5,"image":"n4.jpg","quantity":3}]
 )

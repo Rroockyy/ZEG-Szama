@@ -206,7 +206,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             
             <form method="GET" action="#" class="d-flex flex-column align-items-center w-100 mb-4">
                 <select name="editCategoryFilter" class="mb-3 form-control w-75" onchange="this.form.submit()">
-                    <option value="">-- Wybierz kategorię do edycji --</option>
+                    <option value="">-- Wybierz kategorię --</option>
                     <?php
                         $query = "SELECT id, typ FROM typy_produktow";
                         $types = mysqli_query($conn, $query);
@@ -372,6 +372,59 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             </button>
         </div>
     </div>
+
+    <div id="deleteCoupon" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+            <h2 class="mb-4">Usuń kupon</h2>
+            <?php
+            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCouponBtn'])) {
+                $couponId = intval($_POST['couponId']);
+                
+                $deleteProductsQuery = "DELETE FROM kupony_produkty WHERE id_kuponu = $couponId";
+                mysqli_query($conn, $deleteProductsQuery);
+
+                $deleteCouponQuery = "DELETE FROM kupony WHERE id = $couponId";
+                mysqli_query($conn, $deleteCouponQuery);
+                // musialem zamiast headera zrobic to w js jaka kara
+                echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "?tab=deleteCoupon';</script>";
+                exit();
+            }
+            ?>
+            <div class="d-flex flex-wrap justify-content-center w-100">
+                <?php
+                $query = "SELECT 
+                            kupony.id,
+                            kupony.nazwa,
+                            kupony.cena,
+                            GROUP_CONCAT(produkty.id) AS produkty_ids,
+                            GROUP_CONCAT(produkty.zdjecie) AS zdjecia
+                        FROM kupony
+                        JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
+                        JOIN produkty ON kupony_produkty.id_produktu = produkty.id
+                        GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
+                $coupons = mysqli_query($conn, $query);
+                if (mysqli_num_rows($coupons) > 0) {    
+                    while($row = mysqli_fetch_array($coupons)) {
+                        $images = explode(',', $row['zdjecia']);
+                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
+                        echo "<div class='d-flex justify-content-center w-100'>";
+                        foreach ($images as $image) {
+                            echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
+                        }
+                        echo '</div>';
+                        echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
+                        
+                        echo "<form action='' method='POST' style='margin-top: 10px;' onsubmit='return confirm(\"Na pewno chcesz usunąć ten kupon?\")'>";
+                        echo "<input type='hidden' name='couponId' value='{$row['id']}'>";
+                        echo "<button type='submit' name='deleteCouponBtn' class='btn btn-danger btn-sm'>Usuń kupon</button>";
+                        echo "</form>";
+                        echo '</div>';
+                    }
+                } else {
+                    echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
+                }
+                ?>
+            </div>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -392,11 +445,22 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const deleteProductNav = document.querySelector('.deleteProductNav');
         const editProductNav = document.querySelector('.editProductNav');
         const createCouponNav = document.querySelector('.createCouponNav');
+        const deleteCouponNav = document.querySelector('.deleteCouponNav');
         
         const createProductSection = document.getElementById('createProduct');
         const deleteProductSection = document.getElementById('deleteProduct');
         const editProductSection = document.getElementById('editProduct');
         const createCouponSection = document.getElementById('createCoupon');
+        const deleteCouponSection = document.getElementById('deleteCoupon');
+
+        deleteCouponNav.addEventListener('click', () => {
+            showTab('deleteCoupon');
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.add('d-none');
+            editProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+            deleteCouponSection.classList.remove('d-none');
+        });
 
         createProductNav.addEventListener('click', () => {
             showTab('createProduct');
@@ -404,6 +468,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.add('d-none');
             editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
+            deleteCouponSection.classList.add('d-none');
         });
 
         deleteProductNav.addEventListener('click', () => {
@@ -412,6 +477,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.remove('d-none');
             editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
+            deleteCouponSection.classList.add('d-none');
         });
 
         editProductNav.addEventListener('click', () => {
@@ -420,6 +486,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.add('d-none');
             editProductSection.classList.remove('d-none');
             createCouponSection.classList.add('d-none');
+            deleteCouponSection.classList.add('d-none');
         });
 
         createCouponNav.addEventListener('click', () => {
@@ -428,6 +495,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.add('d-none');
             editProductSection.classList.add('d-none');
             createCouponSection.classList.remove('d-none');
+            deleteCouponSection.classList.add('d-none');
         });
 
         const urlParams = new URLSearchParams(window.location.search);
@@ -443,17 +511,22 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
         }
+        if (urlParams.has('tab')) {
+            showTab(urlParams.get('tab'));
+        }
 
         function showTab(tab) {
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.add('d-none');
             editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
+            deleteCouponSection.classList.add('d-none');
 
             if (tab === 'createProduct') createProductSection.classList.remove('d-none');
             if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
             if (tab === 'editProduct') editProductSection.classList.remove('d-none');
             if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
+            if (tab === 'deleteCoupon') deleteCouponSection.classList.remove('d-none');
 
             localStorage.setItem('activeTab', tab);
         }
@@ -512,9 +585,9 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         });
 
         const savedTab = localStorage.getItem('activeTab');
-        if (savedTab && !urlParams.has('categoryFilter') && !urlParams.has('editCategoryFilter')) {
-            showTab(savedTab);
-        }
+            if (savedTab && !urlParams.has('categoryFilter') && !urlParams.has('editCategoryFilter') && !urlParams.has('tab')) {
+                showTab(savedTab);
+            }
     </script>
 </body>
 </html>
