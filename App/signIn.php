@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
                 session_regenerate_id(true);
                 $_SESSION['user_id'] = mysqli_insert_id($conn);
                 $_SESSION['username'] = $username;
+                $_SESSION['phone'] = $phone;
+                $_SESSION['email'] = $email;
                 $_SESSION['logged_in'] = true;
 
                 mysqli_stmt_close($checkStatement);
@@ -62,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zegowska Szama</title>
-    <link rel="icon" href="zeg.png">
+    <link rel="icon" href="src/zeg.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>

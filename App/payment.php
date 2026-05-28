@@ -1,4 +1,5 @@
 <?php
+$conn = mysqli_connect("localhost", "root", "", "szama");
 session_start();
 ?>
 
@@ -9,7 +10,7 @@ session_start();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Płatność - Zegowska Szama</title>
 
-    <link rel="icon" href="zeg.png">
+    <link rel="icon" href="src/zeg.png">
 
     <link 
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" 
@@ -20,7 +21,6 @@ session_start();
 </head>
 
 <body class="min-vh-100 d-flex flex-column">
-
     <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
         
         <a href="menu.php" class="m-3">Menu</a>
@@ -33,10 +33,24 @@ session_start();
 
         <?php
         if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
-
+            $userDostep = 0;
+            if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
+                $userId = intval($_SESSION['user_id']);
+                mysqli_stmt_bind_param($stmt, 'i', $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $userDostep);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+                if (!isset($_SESSION['dostep'])) {
+                    $_SESSION['dostep'] = $userDostep;
+                }
+            }
             echo '<div class="ms-auto text-end">';
-            echo '<h5>Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '</h5>';
-            echo '<a href="logout.php">Wyloguj się</a>';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
+                if (intval($userDostep) === 2) {
+                    echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
+                }
+                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
             echo '</div>';
 
         } else {

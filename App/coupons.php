@@ -9,7 +9,7 @@ session_start();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zegowska Szama</title>
-    <link rel="icon" href="zeg.png">
+    <link rel="icon" href="src/zeg.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
@@ -33,7 +33,7 @@ session_start();
                 }
             }
             echo '<div class="ms-auto text-end">';
-                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '</h4>';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
                 if (intval($userDostep) === 2) {
                     echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
                 }

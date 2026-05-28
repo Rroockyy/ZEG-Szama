@@ -46,17 +46,90 @@ session_start();
         ?>
     </header>
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
-        <h1 class="mt-5">O nas</h1>
-        <p class="mt-3 text-center w-75 fs-3">
-            Witaj w Zegowskiej Szamie! Najlepszym sklepiku szkolnym w Polsce! Nie często spotyka się sklepik szkolny ze stroną internetową, ale my lubimy być inni (i lepsi). W naszej ofercie znajdziesz szeroki wybór pysznych przekąsek, napojów i słodyczy, które zaspokoją Twoje szkolne zachcianki. Nasz sklepik to nie tylko miejsce, gdzie możesz kupić coś smacznego, ale także przestrzeń, gdzie możesz się spotkać z przyjaciółmi i spędzić miło czas podczas przerw. Dbamy o to, aby nasze produkty były zawsze świeże i smaczne, a nasza obsługa była szybka i przyjazna. Zapraszamy do odwiedzenia Zegowskiej Szamy - miejsca, gdzie smak i przyjemność idą w parze!
-        </p>
-        <p>
-            <a href="https://www.zs4.oswiata.tychy.pl/" target="_blank"><img class="socialImg" src="src/zeg.png" alt="strona zegowska"></a>
+        <h1 class="mt-5">
+            Profil: <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>
+        </h1>
 
-            <a href="https://www.facebook.com/profile.php?id=100087173032636" target="_blank"><img class="socialImg" src="src/facebook.png" alt="facebook"></a>
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label class="form-label">Zmień nazwę użytkownika</label>
+                <input type="text" class="form-control" name="usernameChange"
+                    value="<?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>">
+            </div>
 
-            <a href="https://www.instagram.com/zegowska_szama/" target="_blank"><img class="socialImg" src="src/instagram.png" alt="instagram"></a>
-        </p>
+            <div class="mb-3">
+                <label class="form-label">Zmień hasło</label>
+                <input type="password" class="form-control" name="passwordChange">
+                
+                <label class="form-label">Stare hasło</label>
+                <input type="password" class="form-control" name="oldPassword">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zmień e-mail</label>
+                <input type="email" class="form-control" name="emailChange"
+                    value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zmień telefon</label>
+                <input type="text" class="form-control" name="phoneChange"
+                    value="<?php echo isset($_SESSION['phone']) ? htmlspecialchars($_SESSION['phone']) : ''; ?>">
+            </div>
+
+            <button type="submit" class="btn btn-primary" name="saveProfileBtn">
+                Zapisz zmiany
+            </button>
+        </form>
+
+        <?php
+            if (isset($_POST['saveProfileBtn'])) {
+
+                $username = trim($_POST['usernameChange']);
+                $email = trim($_POST['emailChange']);
+                $phone = trim($_POST['phoneChange']);
+                $oldPassword = $_POST['oldPassword'] ?? '';
+                $newPassword = $_POST['passwordChange'] ?? '';
+
+                $userId = $_SESSION['user_id'];
+
+                $stmt = mysqli_prepare($conn, "SELECT haslo FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $dbPassword);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+
+                $dbPassword = $dbPassword ?? '';
+
+                if (!empty($newPassword)) {
+                    if (!password_verify($oldPassword, $dbPassword)) {
+                        echo "<div class='alert alert-danger mt-3'>Niepoprawne stare hasło!</div>";
+                        exit;
+                    }
+
+                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+                    $update = mysqli_prepare($conn, "UPDATE uzytkownicy SET haslo = ? WHERE id = ?");
+                    mysqli_stmt_bind_param($update, "si", $hashedPassword, $userId);
+                    mysqli_stmt_execute($update);
+                    mysqli_stmt_close($update);
+                }
+
+                $update = mysqli_prepare($conn,
+                    "UPDATE uzytkownicy SET nazwa_uzytkownika=?, Email=?, telefon=? WHERE id=?"
+                );
+                mysqli_stmt_bind_param($update, "sssi", $username, $email, $phone, $userId);
+                mysqli_stmt_execute($update);
+                mysqli_stmt_close($update);
+
+                $_SESSION['username'] = $username;
+                $_SESSION['email'] = $email;
+                $_SESSION['phone'] = $phone;
+
+                echo "<div class='alert alert-success mt-3'>Zmieniono dane profilu!</div>";
+            }
+        ?>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
