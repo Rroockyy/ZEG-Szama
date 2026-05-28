@@ -372,6 +372,66 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             </button>
         </div>
     </div>
+
+    <div id="manageUsers" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+        <h2 class="mb-4">Zarządzaj użytkownikami</h2>
+        <?php
+            if(isset($_POST['deleteUserBtn'])){
+                $userIdToDelete = intval($_POST['deleteUserId']);
+
+                $stmt = mysqli_prepare($conn, "DELETE FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+            }
+
+            if(isset($_POST['changeUserStatusBtn'])) {
+                $userIdToChange = intval($_POST['changeUserStatus']);
+
+                $currentStatus = 0;
+                $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userIdToChange);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $currentStatus);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+
+                $newStatus = ($currentStatus == 1) ? 2 : 1;
+
+                $updateStmt = mysqli_prepare($conn, "UPDATE uzytkownicy SET dostep = ? WHERE id = ?");
+                mysqli_stmt_bind_param($updateStmt, "ii", $newStatus, $userIdToChange);
+                mysqli_stmt_execute($updateStmt);
+                mysqli_stmt_close($updateStmt);
+            }
+
+            $query = "SELECT uzytkownicy.id, uzytkownicy.nazwa_uzytkownika, uzytkownicy.Email, uzytkownicy.telefon, dostep.dostep FROM uzytkownicy join dostep on uzytkownicy.dostep = dostep.id ORDER BY uzytkownicy.id ASC";
+            $users = mysqli_query($conn, $query);
+            while($row = mysqli_fetch_array($users)) {
+                echo "<div class='card mb-2 p-2 w-100 d-flex flex-row align-items-center justify-content-between'>";
+                echo "<div>";
+                    echo "<strong>{$row['nazwa_uzytkownika']}</strong><br>";
+                    echo "Email: {$row['Email']}<br>";
+                    echo "Telefon: {$row['telefon']}<br>";
+                    echo "Dostęp: " . $row['dostep'];
+                    echo "</div>";
+
+                    if(intval($row['id']) !== intval($_SESSION['user_id'])) {
+                        echo "<form method='POST' action=''>";
+                        echo "<input type='hidden' name='changeUserStatus' value='{$row['id']}'>";
+                        echo "<button type='submit' name='changeUserStatusBtn' class='btn btn-primary m-2'>Zmień status na " . ($row['dostep'] == "użytkownik" ? "administrator" : "użytkownik") . "</button>";
+                        echo "</form>";
+                    }
+                    
+                    if ($row['dostep'] != "administrator") {
+                        echo "<form method='POST' action='' onsubmit='return confirm(\"Na pewno chcesz usunąć tego użytkownika?\")'>";
+                        echo "<input type='hidden' name='deleteUserId' value='{$row['id']}'>";
+                        echo "<button type='submit' name='deleteUserBtn' class='btn btn-danger'>Usuń</button>";
+                        echo "</form>";
+                    }
+                echo "</div>";
+            }
+        ?>
+    </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -392,45 +452,36 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const deleteProductNav = document.querySelector('.deleteProductNav');
         const editProductNav = document.querySelector('.editProductNav');
         const createCouponNav = document.querySelector('.createCouponNav');
+        const manageUsersNav = document.querySelector('.manageUsersNav');
         
         const createProductSection = document.getElementById('createProduct');
         const deleteProductSection = document.getElementById('deleteProduct');
         const editProductSection = document.getElementById('editProduct');
         const createCouponSection = document.getElementById('createCoupon');
+        const manageUsersSection = document.getElementById('manageUsers');
 
         createProductNav.addEventListener('click', () => {
             showTab('createProduct');
-            createProductSection.classList.remove('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
         });
 
         deleteProductNav.addEventListener('click', () => {
             showTab('deleteProduct');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.remove('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.add('d-none');
         });
 
         editProductNav.addEventListener('click', () => {
             showTab('editProduct');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.remove('d-none');
-            createCouponSection.classList.add('d-none');
         });
 
         createCouponNav.addEventListener('click', () => {
             showTab('createCoupon');
-            createProductSection.classList.add('d-none');
-            deleteProductSection.classList.add('d-none');
-            editProductSection.classList.add('d-none');
-            createCouponSection.classList.remove('d-none');
+        });
+
+        manageUsersNav.addEventListener('click', () => {
+            showTab('manageUsers');
         });
 
         const urlParams = new URLSearchParams(window.location.search);
+
         if (urlParams.has('categoryFilter') && urlParams.get('categoryFilter') !== '') {
             deleteProductSection.classList.remove('d-none');
             createProductSection.classList.add('d-none');
@@ -449,11 +500,13 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             deleteProductSection.classList.add('d-none');
             editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
+            manageUsersSection.classList.add('d-none');
 
             if (tab === 'createProduct') createProductSection.classList.remove('d-none');
             if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
             if (tab === 'editProduct') editProductSection.classList.remove('d-none');
             if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
+            if (tab === 'manageUsers') manageUsersSection.classList.remove('d-none');
 
             localStorage.setItem('activeTab', tab);
         }

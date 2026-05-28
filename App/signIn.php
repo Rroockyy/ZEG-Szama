@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
         } else {
 
             $hash = password_hash($password, PASSWORD_DEFAULT);
-            //
-            $insertStatement = mysqli_prepare($conn, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep, status) VALUES (?, ?, ?, ?, 1, 1)");
+            
+            $insertStatement = mysqli_prepare($conn, "INSERT INTO uzytkownicy (nazwa_uzytkownika, Email, telefon, haslo, dostep) VALUES (?, ?, ?, ?, 1)");
             mysqli_stmt_bind_param($insertStatement, 'ssss', $username, $email, $phone, $hash);
 
             if (mysqli_stmt_execute($insertStatement)) {

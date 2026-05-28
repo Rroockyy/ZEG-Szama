@@ -94,7 +94,6 @@
                 <label for="LogInEmail" style="align-self: flex-start;">E-mail</label><input type="email" id="LogInEmail" name="login" required>
                 <label for="LogInPass" style="align-self: flex-start;">Hasło</label><input type="password" id="LogInPass" name="password" required>
                 <a href="" id="ForgotPass"><sub>Nie pamiętasz hasła?</sub></a>
-                <div><input type="checkbox" id="RememberPass"><label for="RememberPass">Zapamiętaj hasło</label></div>
                 <input type="submit" value="Zaloguj się" id="LogInBtn">
                 <sub>Nie masz konta? <a href="signIn.php" id="LogInAccExistHref">Zarejestruj się</a></sub>
             </form>
