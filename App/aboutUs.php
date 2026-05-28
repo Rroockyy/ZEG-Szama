@@ -48,7 +48,14 @@ session_start();
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
         <h1 class="mt-5">O nas</h1>
         <p class="mt-3 text-center w-75 fs-3">
-            Strona Zegowskiego Sklepiku szkolnego została przygotowana przez Ksawerego Berk i Antoniego Dzięgielewskiego. Aplikacja została stworzona w ramach projektu szkolnego w klasie 3 w roku 2026 w okesie kwiecień-czerwiec.
+            Witaj w Zegowskiej Szamie! Najlepszym sklepiku szkolnym w Polsce! Nie często spotyka się sklepik szkolny ze stroną internetową, ale my lubimy być inni (i lepsi). W naszej ofercie znajdziesz szeroki wybór pysznych przekąsek, napojów i słodyczy, które zaspokoją Twoje szkolne zachcianki. Nasz sklepik to nie tylko miejsce, gdzie możesz kupić coś smacznego, ale także przestrzeń, gdzie możesz się spotkać z przyjaciółmi i spędzić miło czas podczas przerw. Dbamy o to, aby nasze produkty były zawsze świeże i smaczne, a nasza obsługa była szybka i przyjazna. Zapraszamy do odwiedzenia Zegowskiej Szamy - miejsca, gdzie smak i przyjemność idą w parze!
+        </p>
+        <p>
+            <a href="https://www.zs4.oswiata.tychy.pl/" target="_blank"><img class="socialImg" src="src/zeg.png" alt="strona zegowska"></a>
+
+            <a href="https://www.facebook.com/profile.php?id=100087173032636" target="_blank"><img class="socialImg" src="src/facebook.png" alt="facebook"></a>
+
+            <a href="https://www.instagram.com/zegowska_szama/" target="_blank"><img class="socialImg" src="src/instagram.png" alt="instagram"></a>
         </p>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
@@ -57,9 +64,9 @@ session_start();
             +48 123 456 789
         </div>
         <div class="position-absolute">
-            <a href="" class="m-2">Nowości</a>
+            <a href="new.php" class="m-2">Nowości</a>
             <a href="aboutUs.php" class="m-2">O nas</a>
-            <a href="" class="m-2">Kontakt</a>
+            <a href="contact.php" class="m-2">Kontakt</a>
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
     </footer>

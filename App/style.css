@@ -301,3 +301,8 @@ a div.itemsType{
 .navItem:hover .dropdown {
     display: block;
 }
+
+.socialImg{
+    width: 50px;
+    margin: 0 10px;
+}

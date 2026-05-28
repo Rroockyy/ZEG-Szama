@@ -45,51 +45,21 @@ session_start();
         }
         ?>
     </header>
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
-        <?php
-            if (!isset($_SESSION['logged_in'])) {
-                echo '<div class="alert alert-danger mt-5" role="alert">Musisz być zalogowany, aby zobaczyć kupony.<br><sub><a href="signIn.php" id="LogInAccExistHref" class="m-2">Zarejestruj się</a></sub><sub><a href="logIn.php" id="LogInAccExistHref" class="m-2">Zaloguj się</a></sub></div>';
-            } else {
-                $query = "SELECT 
-                            kupony.id,
-                            kupony.nazwa,
-                            kupony.cena,
-                            GROUP_CONCAT(produkty.id) AS produkty_ids,
-                            GROUP_CONCAT(produkty.zdjecie) AS zdjecia
-                        FROM kupony
-                        JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
-                        JOIN produkty ON kupony_produkty.id_produktu = produkty.id
-                        GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
-                $coupons = mysqli_query($conn, $query);
-                if (mysqli_num_rows($coupons) > 0) {    
-                    echo '<div class="d-flex flex-wrap justify-content-center w-100">';
-                    while($row = mysqli_fetch_array($coupons)) {
-                        $images = explode(',', $row['zdjecia']);
-                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
-                        echo "<div class='d-flex justify-content-center w-100'>";
-                        foreach ($images as $image) {
-                            echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
-                        }
-                        echo '</div>';
-                        echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
-                        echo "<button 
-                                    class='addToCartBtn'
-                                    data-id='$row[id]'
-                                    data-products='$row[produkty_ids]'
-                                    data-name='$row[nazwa]'
-                                    data-price='$row[cena]'
-                                    data-image='$row[zdjecia]'
-                                >
-                                Dodaj do koszyka
-                            </button>";
-                        echo '</div>';
-                    }
-                    echo '</div>';
-                } else {
-                    echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
-                }
-            }
-        ?>
+    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
+        <h1 class="mt-5">Kontakt</h1>
+        <p class="mt-3 text-center w-75 fs-3">
+            Masz pytania? Skontaktuj się z nami!
+        </p>
+        <div class="d-flex flex-column align-items-center mt-4">
+            <div class="d-flex align-items-center mb-3">
+                <img src="src/phone.png" alt="Telefon" class="socialImg">
+                <span class="fs-4">+48 123 456 789</span>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+                <img src="src/email.png" alt="Email" class="socialImg">
+                <span class="fs-4">kontakt@zegowska-szama.pl</span>
+            </div>
+        </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -138,6 +108,7 @@ session_start();
         }
 
         function renderCart() {
+
             const cart = getCart();
 
             let totalItems = 0;
@@ -150,7 +121,7 @@ session_start();
                 totalItems += item.quantity;
                 totalPrice += item.price * item.quantity;
 
-                const images = (item.image || "").split(",");
+                const images = item.image.split(",");
 
                 let imagesHTML = "";
 
@@ -191,17 +162,24 @@ session_start();
             }
         }
 
-        function addToCart(id, name, price, image, products) {
+        function addToCart(name, price, image) {
+
             let cart = getCart();
 
-            cart.push({
-                id: parseInt(id),
-                name: name,
-                price: parseFloat(price),
-                image: image,
-                products: products ? products.split(",").map(Number) : [],
-                quantity: 1
-            });
+            const existing = cart.find(item => item.name === name);
+
+            if (existing) {
+                existing.quantity++;
+            }
+            else {
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: parseFloat(price),
+                    image: image,
+                    quantity: 1
+                });
+            }
 
             saveCart(cart);
             renderCart();
@@ -219,8 +197,7 @@ session_start();
                     btn.dataset.id,
                     btn.dataset.name,
                     btn.dataset.price,
-                    btn.dataset.image,
-                    btn.dataset.products
+                    btn.dataset.image
                 );
 
             });

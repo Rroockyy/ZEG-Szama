@@ -1,8 +1,0 @@
-Array
-(
-    [name] => Rogal
-    [phone] => 123456789
-    [email] => rogal@gmail.pl
-    [payment] => BLIK
-    [cart] => [{"id":"4","name":"Bułka Ser","price":3,"image":"b2.jpg","quantity":3},{"id":2,"name":"Bułka szynka + Bułka ser","price":5,"image":"b2.jpg,b3.jpg","products":[4,5],"quantity":1},{"id":2,"name":"Bułka szynka + Bułka ser","price":5,"image":"b2.jpg,b3.jpg","products":[4,5],"quantity":1}]
-)
