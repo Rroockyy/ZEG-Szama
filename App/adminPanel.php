@@ -200,7 +200,97 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
 }
 ?>
         </div>
-        <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded">
+
+        <div id="editProduct" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+            <h2 class="mb-4">Modyfikuj produkt</h2>
+            
+            <form method="GET" action="#" class="d-flex flex-column align-items-center w-100 mb-4">
+                <select name="editCategoryFilter" class="mb-3 form-control w-75" onchange="this.form.submit()">
+                    <option value="">-- Wybierz kategorię do edycji --</option>
+                    <?php
+                        $query = "SELECT id, typ FROM typy_produktow";
+                        $types = mysqli_query($conn, $query);
+                        while($row = mysqli_fetch_array($types)) {
+                            $selected = isset($_GET['editCategoryFilter']) && $_GET['editCategoryFilter'] == $row['id'] ? 'selected' : '';
+                            echo "<option value='$row[id]' $selected>$row[typ]</option>";
+                        }
+                    ?>
+                </select>
+            </form>
+
+            <?php
+            if (isset($_POST['updateProductBtn'])) {
+                $pId = intval($_POST['editProductId']);
+                $pName = $_POST['editProductName'] ?? '';
+                $pPrice = $_POST['editProductPrice'] ?? '';
+                $pType = $_POST['editProductType'] ?? '';
+                $pImage = $_FILES['editProductImage'] ?? null;
+
+                if ($pId && $pName && $pPrice && $pType) {
+                    if ($pImage && $pImage['error'] == 0) {
+                        $prefixes = [1 => 'b', 2 => 'h', 3 => 't', 4 => 'n'];
+                        $prefix = $prefixes[$pType] ?? 'p';
+                        $extension = pathinfo($pImage['name'], PATHINFO_EXTENSION);
+                        $imageName = $prefix . $pId . '.' . $extension;
+                        $imagePath = 'src/' . $imageName;
+
+                        if (move_uploaded_file($pImage['tmp_name'], $imagePath)) {
+                            $updateQuery = "UPDATE produkty SET nazwa = ?, cena = ?, typ = ?, zdjecie = ? WHERE id = ?";
+                            $stmt = mysqli_prepare($conn, $updateQuery);
+                            mysqli_stmt_bind_param($stmt, 'sdisi', $pName, $pPrice, $pType, $imageName, $pId);
+                        }
+                    } else {
+                        $updateQuery = "UPDATE produkty SET nazwa = ?, cena = ?, typ = ? WHERE id = ?";
+                        $stmt = mysqli_prepare($conn, $updateQuery);
+                        mysqli_stmt_bind_param($stmt, 'sdii', $pName, $pPrice, $pType, $pId);
+                    }
+
+                    if (isset($stmt) && mysqli_stmt_execute($stmt)) {
+                        echo '<div class="alert alert-success mt-2">Produkt zaktualizowany.</div>';
+                        mysqli_stmt_close($stmt);
+                    } else {
+                        echo '<div class="alert alert-danger mt-2">Błąd zapisu zmian.</div>';
+                    }
+                }
+            }
+
+            if (isset($_GET['editCategoryFilter']) && $_GET['editCategoryFilter'] != '') {
+                $editCatId = intval($_GET['editCategoryFilter']);
+                $queryEdit = "SELECT id, zdjecie, nazwa, cena, typ FROM produkty WHERE typ = $editCatId ORDER BY id ASC";
+                $productsEdit = mysqli_query($conn, $queryEdit);
+                
+                echo "<div class='d-flex flex-row flex-wrap justify-content-center gap-3 w-100'>";
+                while($pRow = mysqli_fetch_array($productsEdit)) {
+                    echo "<div class='productBox card p-2 d-flex flex-column align-items-center' style='width: 200px;'>";
+                    echo "<img src='src/{$pRow['zdjecie']}' alt='{$pRow['nazwa']}' class='w-50 mb-2'>";
+                    
+                    echo "<form action='#' method='POST' enctype='multipart/form-data' class='w-100 d-flex flex-column'>";
+                    echo "<input type='hidden' name='editProductId' value='{$pRow['id']}'>";
+                    
+                    echo "<input type='text' name='editProductName' value='".htmlspecialchars($pRow['nazwa'])."' class='form-control form-control-sm mb-1'>";
+                    echo "<input type='number' inputmode='decimal' name='editProductPrice' step='0.01' value='{$pRow['cena']}' class='form-control form-control-sm mb-1'>";
+                    
+                    echo "<select name='editProductType' class='form-control form-control-sm mb-1'>";
+                    $typesQuery = "SELECT id, typ FROM typy_produktow";
+                    $typesRes = mysqli_query($conn, $typesQuery);
+                    while($tRow = mysqli_fetch_array($typesRes)) {
+                        $sel = ($tRow['id'] == $pRow['typ']) ? 'selected' : '';
+                        echo "<option value='{$tRow['id']}' $sel>{$tRow['typ']}</option>";
+                    }
+                    echo "</select>";
+                    
+                    echo "<input type='file' name='editProductImage' accept='.jpg, .jpeg, .png' class='form-control form-control-sm mb-2'>";
+                    echo "<button type='submit' name='updateProductBtn' class='btn btn-warning btn-sm'>Zapisz</button>";
+                    echo "</form>";
+                    
+                    echo "</div>";
+                }
+                echo "</div>";
+            }
+            ?>
+        </div>
+
+        <div id="createCoupon" class="adminPanelSection d-flex flex-column align-items-center card p-4 shadow bg-light rounded d-none">
         <h2 class="mb-4">Stwórz nowy kupon</h2>
 
         <form method="POST" class="d-flex flex-column align-items-center w-100">
@@ -223,7 +313,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
 
                 $code = $_POST['couponCode'];
                 $discount = $_POST['couponDiscount'];
-                $products = $_POST['selectedProducts']; // "1,2,3"
+                $products = $_POST['selectedProducts'];
 
                 if ($code && $discount && $products) {
 
@@ -294,21 +384,25 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             <a href="" class="m-2">Kontakt</a>
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
-    </footer>
+    </header>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
         const createProductNav = document.querySelector('.createProductNav');
         const deleteProductNav = document.querySelector('.deleteProductNav');
+        const editProductNav = document.querySelector('.editProductNav');
         const createCouponNav = document.querySelector('.createCouponNav');
+        
         const createProductSection = document.getElementById('createProduct');
         const deleteProductSection = document.getElementById('deleteProduct');
+        const editProductSection = document.getElementById('editProduct');
         const createCouponSection = document.getElementById('createCoupon');
 
         createProductNav.addEventListener('click', () => {
             showTab('createProduct');
             createProductSection.classList.remove('d-none');
             deleteProductSection.classList.add('d-none');
+            editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
         });
 
@@ -316,6 +410,15 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             showTab('deleteProduct');
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.remove('d-none');
+            editProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+        });
+
+        editProductNav.addEventListener('click', () => {
+            showTab('editProduct');
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.add('d-none');
+            editProductSection.classList.remove('d-none');
             createCouponSection.classList.add('d-none');
         });
 
@@ -323,28 +426,37 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             showTab('createCoupon');
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.add('d-none');
+            editProductSection.classList.add('d-none');
             createCouponSection.classList.remove('d-none');
         });
-        //to ci pobiera jakis parametr url i na jego podstawie wchodzi ci w odpowiednia zakladke bo bez tego to cie wywala do kuponow 
+
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.has('categoryFilter') && urlParams.get('categoryFilter') !== '') {
             deleteProductSection.classList.remove('d-none');
             createProductSection.classList.add('d-none');
+            editProductSection.classList.add('d-none');
+            createCouponSection.classList.add('d-none');
+        }
+        if (urlParams.has('editCategoryFilter') && urlParams.get('editCategoryFilter') !== '') {
+            editProductSection.classList.remove('d-none');
+            createProductSection.classList.add('d-none');
+            deleteProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
         }
 
         function showTab(tab) {
             createProductSection.classList.add('d-none');
             deleteProductSection.classList.add('d-none');
+            editProductSection.classList.add('d-none');
             createCouponSection.classList.add('d-none');
 
             if (tab === 'createProduct') createProductSection.classList.remove('d-none');
             if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
+            if (tab === 'editProduct') editProductSection.classList.remove('d-none');
             if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
 
             localStorage.setItem('activeTab', tab);
         }
-
 
         const modal = document.getElementById('productModal');
         const openBtn = document.getElementById('openProductPicker');
@@ -400,8 +512,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         });
 
         const savedTab = localStorage.getItem('activeTab');
-
-        if (savedTab) {
+        if (savedTab && !urlParams.has('categoryFilter') && !urlParams.has('editCategoryFilter')) {
             showTab(savedTab);
         }
     </script>
