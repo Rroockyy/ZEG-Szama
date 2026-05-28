@@ -1,0 +1,286 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "szama");
+session_start();
+?>
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zegowska Szama</title>
+    <link rel="icon" href="src/zeg.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+    <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
+        <a href="menu.php" class="m-3">Menu</a>
+        <a href="coupons.php" class="me-auto">Kupony</a>
+        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
+        <?php
+        if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+            $userDostep = 0;
+            if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
+                $userId = intval($_SESSION['user_id']);
+                mysqli_stmt_bind_param($stmt, 'i', $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $userDostep);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+                if (!isset($_SESSION['dostep'])) {
+                    $_SESSION['dostep'] = $userDostep;
+                }
+            }
+            echo '<div class="ms-auto text-end">';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
+                if (intval($userDostep) === 2) {
+                    echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
+                }
+                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
+            echo '</div>';
+        } else {
+            echo '<a href="logIn.php" class="ms-auto">Logowanie</a>';
+            echo '<a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>';
+        }
+        ?>
+    </header>
+    <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
+        <h1 class="mt-5">
+            Profil: <?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>
+        </h1>
+
+        <form method="POST" action="">
+            <div class="mb-3">
+                <label class="form-label">Zmień nazwę użytkownika</label>
+                <input type="text" class="form-control" name="usernameChange"
+                    value="<?php echo isset($_SESSION['username']) ? htmlspecialchars($_SESSION['username']) : ''; ?>">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zmień hasło</label>
+                <input type="password" class="form-control" name="passwordChange">
+                
+                <label class="form-label">Stare hasło</label>
+                <input type="password" class="form-control" name="oldPassword">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zmień e-mail</label>
+                <input type="email" class="form-control" name="emailChange"
+                    value="<?php echo isset($_SESSION['email']) ? htmlspecialchars($_SESSION['email']) : ''; ?>">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Zmień telefon</label>
+                <input type="text" class="form-control" name="phoneChange"
+                    value="<?php echo isset($_SESSION['phone']) ? htmlspecialchars($_SESSION['phone']) : ''; ?>">
+            </div>
+
+            <button type="submit" class="btn btn-primary" name="saveProfileBtn">
+                Zapisz zmiany
+            </button>
+        </form>
+
+        <?php
+            if (isset($_POST['saveProfileBtn'])) {
+
+                $username = trim($_POST['usernameChange']);
+                $email = trim($_POST['emailChange']);
+                $phone = trim($_POST['phoneChange']);
+                $oldPassword = $_POST['oldPassword'] ?? '';
+                $newPassword = $_POST['passwordChange'] ?? '';
+
+                $userId = $_SESSION['user_id'];
+
+                $stmt = mysqli_prepare($conn, "SELECT haslo FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $dbPassword);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+
+                $dbPassword = $dbPassword ?? '';
+
+                if (!empty($newPassword)) {
+                    if (!password_verify($oldPassword, $dbPassword)) {
+                        echo "<div class='alert alert-danger mt-3'>Niepoprawne stare hasło!</div>";
+                        exit;
+                    }
+
+                    $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
+
+                    $update = mysqli_prepare($conn, "UPDATE uzytkownicy SET haslo = ? WHERE id = ?");
+                    mysqli_stmt_bind_param($update, "si", $hashedPassword, $userId);
+                    mysqli_stmt_execute($update);
+                    mysqli_stmt_close($update);
+                }
+
+                $update = mysqli_prepare($conn,
+                    "UPDATE uzytkownicy SET nazwa_uzytkownika=?, Email=?, telefon=? WHERE id=?"
+                );
+                mysqli_stmt_bind_param($update, "sssi", $username, $email, $phone, $userId);
+                mysqli_stmt_execute($update);
+                mysqli_stmt_close($update);
+
+                $_SESSION['username'] = $username;
+                $_SESSION['email'] = $email;
+                $_SESSION['phone'] = $phone;
+
+                echo "<div class='alert alert-success mt-3'>Zmieniono dane profilu!</div>";
+            }
+        ?>
+    </main>
+    <footer class="d-flex align-items-center justify-content-center p-2">
+        <div class="me-auto">
+            Zamów przez telefon <br>
+            +48 123 456 789
+        </div>
+        <div class="position-absolute">
+            <a href="new.php" class="m-2">Nowości</a>
+            <a href="aboutUs.php" class="m-2">O nas</a>
+            <a href="contact.php" class="m-2">Kontakt</a>
+        </div>
+        <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
+    </footer>
+
+    <div id="cartBox" class="d-none">
+        <div id="cartSummary">
+            <span id="cartItems">0</span> produktów |
+            <span id="cartTotal">0.00</span> zł
+        </div>
+
+        <div id="cartExpanded" class="d-none">
+
+            <div id="cartItemsList"></div>
+
+            <a href='cart.php' class='btn btn-danger w-100 mt-2'>
+                Przejdź do koszyka
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        const cartBox = document.getElementById("cartBox");
+        const cartSummary = document.getElementById("cartSummary");
+        const cartExpanded = document.getElementById("cartExpanded");
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+        const cartItemsList = document.getElementById("cartItemsList");
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem("cart")) || [];
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+
+        function renderCart() {
+
+            const cart = getCart();
+
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            cartItemsList.innerHTML = "";
+
+            cart.forEach(item => {
+
+                totalItems += item.quantity;
+                totalPrice += item.price * item.quantity;
+
+                const images = item.image.split(",");
+
+                let imagesHTML = "";
+
+                images.forEach(img => {
+                    imagesHTML += `
+                        <img 
+                            src="src/${img.trim()}" 
+                            width="50"
+                            class="m-1 rounded"
+                        >
+                    `;
+                });
+
+                cartItemsList.innerHTML += `
+                    <div class="cartItem d-flex align-items-center mb-2">
+
+                        <div class="d-flex flex-wrap me-2">
+                            ${imagesHTML}
+                        </div>
+
+                        <div>
+                            <div>${item.name}</div>
+                            <div>${item.quantity} x ${item.price} zł</div>
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            cartItems.innerText = totalItems;
+            cartTotal.innerText = totalPrice.toFixed(2);
+
+            if (totalItems > 0) {
+                cartBox.classList.remove("d-none");
+            }
+            else {
+                cartBox.classList.add("d-none");
+            }
+        }
+
+        function addToCart(id, name, price, image) {
+
+            let cart = getCart();
+
+            const existing = cart.find(item => item.name === name);
+
+            if (existing) {
+                existing.quantity++;
+            }
+            else {
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: parseFloat(price),
+                    image: image,
+                    quantity: 1
+                });
+            }
+
+            saveCart(cart);
+            renderCart();
+        }
+
+        cartSummary.addEventListener("click", () => {
+            cartExpanded.classList.toggle("d-none");
+        });
+
+        document.querySelectorAll(".addToCartBtn").forEach(btn => {
+
+            btn.addEventListener("click", () => {
+
+                addToCart(
+                    btn.dataset.id,
+                    btn.dataset.name,
+                    btn.dataset.price,
+                    btn.dataset.image
+                );
+
+            });
+
+        });
+
+        renderCart();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<?php
+    mysqli_close($conn);
+?>

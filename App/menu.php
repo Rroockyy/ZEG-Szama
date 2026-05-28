@@ -1,0 +1,251 @@
+<?php
+$conn = mysqli_connect("localhost", "root", "", "szama");
+session_start();
+?>
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zegowska Szama</title>
+    <link rel="icon" href="src/zeg.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+</head>
+<body class="min-vh-100 d-flex flex-column">
+    <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
+        <a href="menu.php" class="m-3">Menu</a>
+        <a href="coupons.php" class="me-auto">Kupony</a>
+        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
+        <?php
+        if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+            $userDostep = 0;
+            if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
+                $userId = intval($_SESSION['user_id']);
+                mysqli_stmt_bind_param($stmt, 'i', $userId);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $userDostep);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+                if (!isset($_SESSION['dostep'])) {
+                    $_SESSION['dostep'] = $userDostep;
+                }
+            }
+            echo '<div class="ms-auto text-end">';
+                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
+                if (intval($userDostep) === 2) {
+                    echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
+                }
+                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
+            echo '</div>';
+        } else {
+            echo '<a href="logIn.php" class="ms-auto">Logowanie</a>';
+            echo '<a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>';
+        }
+        ?>
+    </header>
+    <main class="flex-grow-1 d-flex align-items-center flex-column">
+        <div class="d-flex justify-content-around w-100 mt-3">
+            <?php
+                $query = "SELECT typy_produktow.typ, produkty.zdjecie FROM typy_produktow JOIN produkty ON typy_produktow.id = produkty.typ WHERE produkty.zdjecie LIKE '_1.jpg' ORDER BY typy_produktow.id ASC";
+                $types = mysqli_query($conn, $query);
+                while($row = mysqli_fetch_array($types)) {
+                    echo "<a href='#type-$row[typ]'><div class='itemsType d-flex flex-column align-items-center'>";
+                    echo "<img src='src/$row[zdjecie]' alt='$row[typ]' class='w-100'>";
+                    echo "$row[typ]";
+                    echo "</div></a>";
+                }
+            ?>
+        </div>
+        <div>
+            <?php
+                $query = "SELECT id, typ FROM typy_produktow ORDER BY id ASC";
+                $pages = mysqli_query($conn, $query);
+                while($row = mysqli_fetch_array($pages)) {
+                    echo "<hr class='vw-100'>";
+                    echo "<div id='type-$row[typ]' class='m-4'>";
+                    echo "<h2>$row[typ]</h2>";
+
+                        $query2 = "SELECT id, zdjecie, nazwa, cena FROM produkty WHERE typ = $row[id] ORDER BY id ASC";
+                        $products = mysqli_query($conn, $query2);
+                        while($row2 = mysqli_fetch_array($products)) {
+                            echo "<div class='productBox";
+                            if(($row2['zdjecie'])[1] == "1") {
+                                echo " bestSeller'>";
+                                echo "<h3>Best Seller!</h3>";
+                            }
+                            else {
+                                echo "'>";
+                            }
+                            echo "<img src='src/$row2[zdjecie]' alt='$row2[nazwa]' class='w-50'>";
+                            echo "<span>$row2[nazwa]</span>";
+                            echo "<span>$row2[cena]zł</span>";
+                            echo "<button 
+                                    class='addToCartBtn'
+                                    data-id='$row2[id]'
+                                    data-name='$row2[nazwa]'
+                                    data-price='$row2[cena]'
+                                    data-image='$row2[zdjecie]'
+                                    >
+                                    Dodaj do koszyka
+                                </button>";
+                            echo "</div>";
+                        }
+
+                    echo "</div>";
+                }
+            ?>
+        </div>
+    </main>
+    <footer class="d-flex align-items-center justify-content-center p-2">
+        <div class="me-auto">
+            Zamów przez telefon <br>
+            +48 123 456 789
+        </div>
+        <div class="position-absolute">
+            <a href="new.php" class="m-2">Nowości</a>
+            <a href="aboutUs.php" class="m-2">O nas</a>
+            <a href="contact.php" class="m-2">Kontakt</a>
+        </div>
+        <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
+    </footer>
+
+    <div id="cartBox" class="d-none">
+        <div id="cartSummary">
+            <span id="cartItems">0</span> produktów |
+            <span id="cartTotal">0.00</span> zł
+        </div>
+
+        <div id="cartExpanded" class="d-none">
+
+            <div id="cartItemsList"></div>
+
+            <a href='cart.php' class='btn btn-danger w-100 mt-2'>
+                Przejdź do koszyka
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        const cartBox = document.getElementById("cartBox");
+        const cartSummary = document.getElementById("cartSummary");
+        const cartExpanded = document.getElementById("cartExpanded");
+        const cartItems = document.getElementById("cartItems");
+        const cartTotal = document.getElementById("cartTotal");
+        const cartItemsList = document.getElementById("cartItemsList");
+
+        function getCart() {
+            return JSON.parse(localStorage.getItem("cart")) || [];
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem("cart", JSON.stringify(cart));
+        }
+
+        function renderCart() {
+
+            const cart = getCart();
+
+            let totalItems = 0;
+            let totalPrice = 0;
+
+            cartItemsList.innerHTML = "";
+
+            cart.forEach(item => {
+
+                totalItems += item.quantity;
+                totalPrice += item.price * item.quantity;
+
+                const images = item.image.split(",");
+
+                let imagesHTML = "";
+
+                images.forEach(img => {
+                    imagesHTML += `
+                        <img 
+                            src="src/${img.trim()}" 
+                            width="50"
+                            class="m-1 rounded"
+                        >
+                    `;
+                });
+
+                cartItemsList.innerHTML += `
+                    <div class="cartItem d-flex align-items-center mb-2">
+
+                        <div class="d-flex flex-wrap me-2">
+                            ${imagesHTML}
+                        </div>
+
+                        <div>
+                            <div>${item.name}</div>
+                            <div>${item.quantity} x ${item.price} zł</div>
+                        </div>
+
+                    </div>
+                `;
+            });
+
+            cartItems.innerText = totalItems;
+            cartTotal.innerText = totalPrice.toFixed(2);
+
+            if (totalItems > 0) {
+                cartBox.classList.remove("d-none");
+            }
+            else {
+                cartBox.classList.add("d-none");
+            }
+        }
+
+        function addToCart(id, name, price, image) {
+            let cart = getCart();
+
+            const existing = cart.find(item => item.id === id);
+
+            if (existing) {
+                existing.quantity++;
+            }
+            else {
+                cart.push({
+                    id: id,
+                    name: name,
+                    price: parseFloat(price),
+                    image: image,
+                    quantity: 1
+                });
+            }
+
+            saveCart(cart);
+            renderCart();
+        }
+
+        cartSummary.addEventListener("click", () => {
+            cartExpanded.classList.toggle("d-none");
+        });
+
+        document.querySelectorAll(".addToCartBtn").forEach(btn => {
+
+            btn.addEventListener("click", () => {
+
+                addToCart(
+                    btn.dataset.id,
+                    btn.dataset.name,
+                    btn.dataset.price,
+                    btn.dataset.image
+                );
+            });
+
+        });
+
+        renderCart();
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+</body>
+</html>
+
+<?php
+    mysqli_close($conn);
+?>
