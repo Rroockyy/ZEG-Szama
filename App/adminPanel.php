@@ -698,6 +698,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         editProductNav.addEventListener('click', () => showTab('editProduct'));
         createCouponNav.addEventListener('click', () => showTab('createCoupon'));
         deleteCouponNav.addEventListener('click', () => showTab('deleteCoupon'));
+        editCouponNav.addEventListener('click', () => showTab('editCoupon'));
         manageOrdersNav.addEventListener('click', () => showTab('manageOrders'));
         manageUsersNav.addEventListener('click', () => showTab('manageUsers'));
 
