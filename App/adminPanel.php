@@ -373,56 +373,55 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
     </div>
 
     <div id="deleteCoupon" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
-            <h2 class="mb-4">Usuń kupon</h2>
-            <?php
-            if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCouponBtn'])) {
-                $couponId = intval($_POST['couponId']);
-                
-                $deleteProductsQuery = "DELETE FROM kupony_produkty WHERE id_kuponu = $couponId";
-                mysqli_query($conn, $deleteProductsQuery);
+        <h2 class="mb-4">Usuń kupon</h2>
+        <?php
+        if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['deleteCouponBtn'])) {
+            $couponId = intval($_POST['couponId']);
+            
+            $deleteProductsQuery = "DELETE FROM kupony_produkty WHERE id_kuponu = $couponId";
+            mysqli_query($conn, $deleteProductsQuery);
 
-                $deleteCouponQuery = "DELETE FROM kupony WHERE id = $couponId";
-                mysqli_query($conn, $deleteCouponQuery);
-                
-                echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "?tab=deleteCoupon';</script>";
-                exit();
+            $deleteCouponQuery = "DELETE FROM kupony WHERE id = $couponId";
+            mysqli_query($conn, $deleteCouponQuery);
+            // musialem zamiast headera zrobic to w js jaka kara
+            echo "<script>window.location.href = '" . $_SERVER['PHP_SELF'] . "?tab=deleteCoupon';</script>";
+            exit();
+        }
+        ?>
+        <div class="d-flex flex-wrap justify-content-center w-100">
+            <?php
+            $query = "SELECT 
+                        kupony.id,
+                        kupony.nazwa,
+                        kupony.cena,
+                        GROUP_CONCAT(produkty.id) AS produkty_ids,
+                        GROUP_CONCAT(produkty.zdjecie) AS zdjecia
+                    FROM kupony
+                    JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
+                    JOIN produkty ON kupony_produkty.id_produktu = produkty.id
+                    GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
+            $coupons = mysqli_query($conn, $query);
+            if (mysqli_num_rows($coupons) > 0) {    
+                while($row = mysqli_fetch_array($coupons)) {
+                    $images = explode(',', $row['zdjecia']);
+                    echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
+                    echo "<div class='d-flex justify-content-center w-100'>";
+                    foreach ($images as $image) {
+                        echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
+                    }
+                    echo '</div>';
+                    echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
+                    
+                    echo "<form action='' method='POST' style='margin-top: 10px;' onsubmit='return confirm(\"Na pewno chcesz usunąć ten kupon?\")'>";
+                    echo "<input type='hidden' name='couponId' value='{$row['id']}'>";
+                    echo "<button type='submit' name='deleteCouponBtn' class='btn btn-danger btn-sm'>Usuń kupon</button>";
+                    echo "</form>";
+                    echo '</div>';
+                }
+            } else {
+                echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
             }
             ?>
-            <div class="d-flex flex-wrap justify-content-center w-100">
-                <?php
-                $query = "SELECT 
-                            kupony.id,
-                            kupony.nazwa,
-                            kupony.cena,
-                            GROUP_CONCAT(produkty.id) AS produkty_ids,
-                            GROUP_CONCAT(produkty.zdjecie) AS zdjecia
-                        FROM kupony
-                        JOIN kupony_produkty ON kupony.id = kupony_produkty.id_kuponu
-                        JOIN produkty ON kupony_produkty.id_produktu = produkty.id
-                        GROUP BY kupony.id, kupony.nazwa, kupony.cena;";
-                $coupons = mysqli_query($conn, $query);
-                if (mysqli_num_rows($coupons) > 0) {    
-                    while($row = mysqli_fetch_array($coupons)) {
-                        $images = explode(',', $row['zdjecia']);
-                        echo '<div class="couponBox d-flex flex-column align-items-center m-3 p-3">';
-                        echo "<div class='d-flex justify-content-center w-100'>";
-                        foreach ($images as $image) {
-                            echo "<img src='src/$image' alt='{$row['nazwa']}' class='w-25 m-2' style='max-height: 50px;'>";
-                        }
-                        echo '</div>';
-                        echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
-                        
-                        echo "<form action='' method='POST' style='margin-top: 10px;' onsubmit='return confirm(\"Na pewno chcesz usunąć ten kupon?\")'>";
-                        echo "<input type='hidden' name='couponId' value='{$row['id']}'>";
-                        echo "<button type='submit' name='deleteCouponBtn' class='btn btn-danger btn-sm'>Usuń kupon</button>";
-                        echo "</form>";
-                        echo '</div>';
-                    }
-                } else {
-                    echo '<div class="alert alert-info mt-5" role="alert">Brak dostępnych kuponów.</div>';
-                }
-                ?>
-            </div>
         </div>
 
         <div id="editCoupon" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
@@ -525,6 +524,116 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
                 ?>
             </div>
         </div>
+    </div>
+
+    <div id="manageOrders" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+        <h2 class="mb-4">Zarządzaj zamówieniami</h2>
+        <?php
+            if(isset($_POST['setStatusFinishedBtn'])) {
+                $orderId = intval($_POST['setStatusFinished']);
+                $updateQuery = "UPDATE zamowienia SET status = 2 WHERE numer_zamowienia = $orderId";
+                mysqli_query($conn, $updateQuery);
+            }
+
+            if(isset($_POST['setStatusCanceledBtn'])) {
+                $orderId = intval($_POST['setStatusCanceled']);
+                $updateQuery = "UPDATE zamowienia SET status = 3 WHERE numer_zamowienia = $orderId";
+                mysqli_query($conn, $updateQuery);
+            }
+
+            if(isset($_POST['deleteOrderBtn'])) {
+                $orderId = intval($_POST['deleteOrder']);
+                $deleteQuery = "DELETE FROM zamowienia_produkty WHERE numer_zamowienia = $orderId";
+                mysqli_query($conn, $deleteQuery);
+                $deleteQuery = "DELETE FROM zamowienia WHERE numer_zamowienia = $orderId";
+                mysqli_query($conn, $deleteQuery);
+            }
+
+            $query = "SELECT zamowienia.numer_zamowienia, uzytkownicy.nazwa_uzytkownika, zamowienia.data, status_zamowienia.status FROM zamowienia JOIN uzytkownicy ON zamowienia.uzytkownik_id = uzytkownicy.id JOIN status_zamowienia ON zamowienia.status = status_zamowienia.id ORDER BY zamowienia.data DESC";
+            $orders = mysqli_query($conn, $query);
+            while($row = mysqli_fetch_array($orders)) {
+                echo "<div class='card mb-2 p-2 w-100 d-flex flex-row align-items-center justify-content-between'>";
+                echo "<div>";
+                    echo "<strong>Zamówienie #{$row['numer_zamowienia']}</strong><br>";
+                    echo "Użytkownik: {$row['nazwa_uzytkownika']}<br>";
+                    echo "Data: {$row['data']}<br>";
+                    echo "Status: {$row['status']}";
+                    echo "</div>";
+
+                    echo "<form method='POST' action=''>";
+                        echo "<input type='hidden' name='setStatusFinished' value='{$row['numer_zamowienia']}'>";
+                        echo "<button type='submit' name='setStatusFinishedBtn' class='btn btn-success m-2'>Zakończ</button>";
+
+                        echo "<input type='hidden' name='setStatusCanceled' value='{$row['numer_zamowienia']}'>";
+                        echo "<button type='submit' name='setStatusCanceledBtn' class='btn btn-warning m-2'>Anuluj</button>";
+
+                        echo "<input type='hidden' name='deleteOrder' value='{$row['numer_zamowienia']}'>";
+                        echo "<button type='submit' name='deleteOrderBtn' class='btn btn-danger m-2'>Usuń</button>";
+                    echo "</form>";
+                echo "</div>";
+            }
+        ?>
+    </div>
+
+    <div id="manageUsers" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
+        <h2 class="mb-4">Zarządzaj użytkownikami</h2>
+        <?php
+            if(isset($_POST['deleteUserBtn'])){
+                $userIdToDelete = intval($_POST['deleteUserId']);
+
+                $stmt = mysqli_prepare($conn, "DELETE FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_close($stmt);
+            }
+
+            if(isset($_POST['changeUserStatusBtn'])) {
+                $userIdToChange = intval($_POST['changeUserStatus']);
+
+                $currentStatus = 0;
+                $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?");
+                mysqli_stmt_bind_param($stmt, "i", $userIdToChange);
+                mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $currentStatus);
+                mysqli_stmt_fetch($stmt);
+                mysqli_stmt_close($stmt);
+
+                $newStatus = ($currentStatus == 1) ? 2 : 1;
+
+                $updateStmt = mysqli_prepare($conn, "UPDATE uzytkownicy SET dostep = ? WHERE id = ?");
+                mysqli_stmt_bind_param($updateStmt, "ii", $newStatus, $userIdToChange);
+                mysqli_stmt_execute($updateStmt);
+                mysqli_stmt_close($updateStmt);
+            }
+
+            $query = "SELECT uzytkownicy.id, uzytkownicy.nazwa_uzytkownika, uzytkownicy.Email, uzytkownicy.telefon, dostep.dostep FROM uzytkownicy join dostep on uzytkownicy.dostep = dostep.id ORDER BY uzytkownicy.id ASC";
+            $users = mysqli_query($conn, $query);
+            while($row = mysqli_fetch_array($users)) {
+                echo "<div class='card mb-2 p-2 w-100 d-flex flex-row align-items-center justify-content-between'>";
+                echo "<div>";
+                    echo "<strong>{$row['nazwa_uzytkownika']}</strong><br>";
+                    echo "Email: {$row['Email']}<br>";
+                    echo "Telefon: {$row['telefon']}<br>";
+                    echo "Dostęp: " . $row['dostep'];
+                    echo "</div>";
+
+                    if(intval($row['id']) !== intval($_SESSION['user_id'])) {
+                        echo "<form method='POST' action=''>";
+                        echo "<input type='hidden' name='changeUserStatus' value='{$row['id']}'>";
+                        echo "<button type='submit' name='changeUserStatusBtn' class='btn btn-primary m-2'>Zmień status na " . ($row['dostep'] == "użytkownik" ? "administrator" : "użytkownik") . "</button>";
+                        echo "</form>";
+                    }
+                    
+                    if ($row['dostep'] != "administrator") {
+                        echo "<form method='POST' action='' onsubmit='return confirm(\"Na pewno chcesz usunąć tego użytkownika?\")'>";
+                        echo "<input type='hidden' name='deleteUserId' value='{$row['id']}'>";
+                        echo "<button type='submit' name='deleteUserBtn' class='btn btn-danger'>Usuń</button>";
+                        echo "</form>";
+                    }
+                echo "</div>";
+            }
+        ?>
+    </div>
     </main>
     <footer class="d-flex align-items-center justify-content-center p-2">
         <div class="me-auto">
@@ -537,7 +646,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             <a href="" class="m-2">Kontakt</a>
         </div>
         <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
-    </header>
+    </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
     <script>
@@ -548,6 +657,9 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         const deleteCouponNav = document.querySelector('.deleteCouponNav');
         const editCouponNav = document.querySelector('.editCouponNav');
         
+        const manageOrdersNav = document.querySelector('.manageOrdersNav');
+        const manageUsersNav = document.querySelector('.manageUsersNav');
+
         const createProductSection = document.getElementById('createProduct');
         const deleteProductSection = document.getElementById('deleteProduct');
         const editProductSection = document.getElementById('editProduct');
@@ -578,8 +690,19 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
         editCouponNav.addEventListener('click', () => {
             showTab('editCoupon');
         });
+        const manageOrdersSection = document.getElementById('manageOrders');
+        const manageUsersSection = document.getElementById('manageUsers');
+
+        createProductNav.addEventListener('click', () => showTab('createProduct'));
+        deleteProductNav.addEventListener('click', () => showTab('deleteProduct'));
+        editProductNav.addEventListener('click', () => showTab('editProduct'));
+        createCouponNav.addEventListener('click', () => showTab('createCoupon'));
+        deleteCouponNav.addEventListener('click', () => showTab('deleteCoupon'));
+        manageOrdersNav.addEventListener('click', () => showTab('manageOrders'));
+        manageUsersNav.addEventListener('click', () => showTab('manageUsers'));
 
         const urlParams = new URLSearchParams(window.location.search);
+
         if (urlParams.has('categoryFilter') && urlParams.get('categoryFilter') !== '') {
             showTab('deleteProduct');
         }
@@ -597,6 +720,8 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             createCouponSection.classList.add('d-none');
             deleteCouponSection.classList.add('d-none');
             editCouponSection.classList.add('d-none');
+            manageOrdersSection.classList.add('d-none');
+            manageUsersSection.classList.add('d-none');
 
             if (tab === 'createProduct') createProductSection.classList.remove('d-none');
             if (tab === 'deleteProduct') deleteProductSection.classList.remove('d-none');
@@ -604,6 +729,8 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             if (tab === 'createCoupon') createCouponSection.classList.remove('d-none');
             if (tab === 'deleteCoupon') deleteCouponSection.classList.remove('d-none');
             if (tab === 'editCoupon') editCouponSection.classList.remove('d-none');
+            if (tab === 'manageOrders') manageOrdersSection.classList.remove('d-none');
+            if (tab === 'manageUsers') manageUsersSection.classList.remove('d-none');
 
             localStorage.setItem('activeTab', tab);
         }
