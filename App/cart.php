@@ -14,37 +14,54 @@ session_start();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body class="min-vh-100 d-flex flex-column">
-    <header class="sticky-top d-flex align-items-center justify-content-center p-2"> 
-        <a href="menu.php" class="m-3">Menu</a>
-        <a href="coupons.php" class="me-auto">Kupony</a>
-        <a href="menu.php"><img src="src/zegowska_szama-logo.png" alt="logo" class=""></a>
-        <?php
-        if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
-            $userDostep = 0;
-            if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
-                $userId = intval($_SESSION['user_id']);
-                mysqli_stmt_bind_param($stmt, 'i', $userId);
-                mysqli_stmt_execute($stmt);
-                mysqli_stmt_bind_result($stmt, $userDostep);
-                mysqli_stmt_fetch($stmt);
-                mysqli_stmt_close($stmt);
-                if (!isset($_SESSION['dostep'])) {
-                    $_SESSION['dostep'] = $userDostep;
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm"> 
+        <a href="menu.php" class="navbar-brand"><img src="src/zegowska_szama-logo.png" id="logo" alt="logo" class="img-fluid"></a>
+
+        <button class="navbar-toggler bg-white m-2" data-bs-toggle="collapse" data-bs-target="#navbarNav" >
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="d-flex flex-column flex-md-row align-items-start align-items-md-center w-100">
+                <div class="d-lg-flex order-2 order-lg-1">
+                    <a href="menu.php" class="m-3 nav-item nav-link">Menu</a>
+                    <a href="coupons.php" class="m-3 nav-item nav-link">Kupony</a>
+                </div>
+                <?php
+                if (!empty($_SESSION['logged_in']) && !empty($_SESSION['username'])) {
+                    $userDostep = 0;
+                    if (!empty($_SESSION['user_id']) && $stmt = mysqli_prepare($conn, "SELECT dostep FROM uzytkownicy WHERE id = ?")) {
+                        $userId = intval($_SESSION['user_id']);
+                        mysqli_stmt_bind_param($stmt, 'i', $userId);
+                        mysqli_stmt_execute($stmt);
+                        mysqli_stmt_bind_result($stmt, $userDostep);
+                        mysqli_stmt_fetch($stmt);
+                        mysqli_stmt_close($stmt);
+                        if (!isset($_SESSION['dostep'])) {
+                            $_SESSION['dostep'] = $userDostep;
+                        }
+                    }
+                    echo '<div class="ms-lg-auto text-lg-end text-start order-1 order-lg-2 m-3">';
+                        echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2 nav-item nav-link"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
+                        echo "<div class='d-flex justify-content-start justify-content-md-end gap-2'>";
+                            if (intval($userDostep) === 2) {
+                                echo '<a href="adminPanel.php" class="nav-item nav-link" id="adminPanel">Panel administratora</a>';
+                            }
+                            echo '<a href="logout.php" class="nav-item nav-link" id="logOut">Wyloguj się</a>';
+                        echo '</div>';
+                    echo '</div>';
+                } else {
+                    echo '<div class="ms-lg-auto text-lg-end text-start order-1 order-lg-2 m-3">';
+                        echo "<div class='d-flex justify-content-start flex-column flex-md-row justify-content-md-end gap-2'>";
+                            echo '<a href="logIn.php" class="nav-item nav-link">Logowanie</a>';
+                            echo '<a href="signIn.php" class="nav-item nav-link" id="SignInBtn">Rejestracja</a>';
+                        echo '</div>';
+                    echo '</div>';
                 }
-            }
-            echo '<div class="ms-auto text-end">';
-                echo '<h4 class="ms-auto font-weight-bold">Zalogowano jako: ' . htmlspecialchars($_SESSION['username']) . '<a href="profile.php" class="ms-2"><img src="src/user.png" alt="Profil" class="socialImg img-fluid"></a></h4>';
-                if (intval($userDostep) === 2) {
-                    echo '<a href="adminPanel.php" class="me-3" id="adminPanel">Panel administratora</a>';
-                }
-                echo '<a href="logout.php" class="ms-3" id="logOut">Wyloguj się</a>';
-            echo '</div>';
-        } else {
-            echo '<a href="logIn.php" class="ms-auto">Logowanie</a>';
-            echo '<a href="signIn.php" class="m-3" id="SignInBtn">Rejestracja</a>';
-        }
-        ?>
-    </header>
+                ?>
+            </div>
+        </div>
+    </nav>
     <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
         <h1 class="mt-5">Twój koszyk</h1>
         <div id="cartPage"></div>

@@ -1,4 +1,4 @@
-header, footer, a:link, a:visited{
+nav, footer, a:link, a:visited{
     color: white;
     text-decoration: none;
 }
@@ -11,7 +11,7 @@ body{
     margin: 0;
 }
 
-header{
+nav{
     background-color: #E01721;
     min-height: 80px;
 }
@@ -20,13 +20,11 @@ footer{
     background-color: #E01721;
 }
 
-header > a > img{
-    height: 75px;
-}
-
-#SignInBtn{
-    border-left: white 1px solid;
-    padding-left: 12px;
+#logo{
+    width: 95%;
+    @media (min-width: 992px) {
+        width: 500px;
+    }
 }
 
 #SignIn, #LogIn{
@@ -59,7 +57,7 @@ header > a > img{
     width: 75%;
     height: 40px;
 }
-nav div{
+.adminNav div{
     background-color: rgb(207, 207, 207);
     color: black;
     border: rgb(207, 207, 207) solid;
@@ -69,7 +67,7 @@ nav div{
     text-align: center;
     
 }
-nav div:hover{
+.adminNav div:hover{
     background-color: rgb(128, 128, 128);
     color: black;
     border: rgb(207, 207, 207) solid;
