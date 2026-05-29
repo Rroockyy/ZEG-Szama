@@ -148,17 +148,21 @@ session_start();
             }
         ?>
     </main>
-    <footer class="d-flex align-items-center justify-content-center p-2">
-        <div class="me-auto">
+    <footer class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between p-3 gap-2">
+        <div class="text-center text-md-start">
             Zamów przez telefon <br>
             +48 123 456 789
         </div>
-        <div class="position-absolute">
-            <a href="new.php" class="m-2">Nowości</a>
-            <a href="aboutUs.php" class="m-2">O nas</a>
-            <a href="contact.php" class="m-2">Kontakt</a>
+
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="new.php">Nowości</a>
+            <a href="aboutUs.php">O nas</a>
+            <a href="contact.php">Kontakt</a>
         </div>
-        <a href="https://www.zs4.oswiata.tychy.pl/" class="ms-auto">Strona zegu</a>
+
+        <a href="https://www.zs4.oswiata.tychy.pl/" class="text-center text-md-end">
+            Strona szkoły
+        </a>
     </footer>
 
     <div id="cartBox" class="d-none">
