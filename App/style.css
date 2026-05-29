@@ -192,6 +192,7 @@ a div.itemsType{
     width: 90%;
     height: 40px;
 }
+
 .couponBox{
     border: 1px solid black;
     border-radius: 10px;
@@ -244,8 +245,19 @@ a div.itemsType{
     border-radius: 8px;
 }
 
-.cartProduct{
-    float: left;
+.couponBox{
+    border: 1px solid black;
+    border-radius: 10px;
+    min-width: 250px;
+    max-width: 250px;
+    min-height: 350px;
+
+    padding: 15px;
+
+    display: flex;
+    flex-direction: column;
+
+    background-color: white;
 }
 
 #cartTotal{

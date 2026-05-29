@@ -1,0 +1,8 @@
+Array
+(
+    [name] => Rogal
+    [phone] => 123456789
+    [email] => rogal@gmail.pl
+    [payment] => Gotówka przy odbiorze
+    [cart] => [{"id":"4","name":"Bułka Ser","price":3,"image":"b2.jpg","quantity":2},{"id":"5","name":"Bułka Szynka","price":3,"image":"b3.jpg","quantity":1},{"id":"6","name":"Bułka Szynka Ser","price":4,"image":"b4.jpg","quantity":1}]
+)

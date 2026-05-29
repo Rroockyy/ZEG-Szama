@@ -62,9 +62,10 @@ session_start();
             </div>
         </div>
     </nav>
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
+    <main class="flex-grow-1 d-flex align-items-center justify-content-md-center flex-column flex-fill">
         <h1 class="mt-5">Twój koszyk</h1>
-        <div id="cartPage"></div>
+        <div id="cartPage" class="d-flex flex-column flex-md-row"></div>
+        <div id="cartSum" class="d-flex flex-column flex-md-row"></div>
     </main>
     <footer class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between p-3 gap-2">
         <div class="text-center text-md-start">
@@ -85,6 +86,7 @@ session_start();
 
     <script>
         const cartPage = document.getElementById("cartPage");
+        const cartSum = document.getElementById("cartSum");
 
         function getCart() {
             return JSON.parse(localStorage.getItem("cart")) || [];
@@ -159,7 +161,7 @@ session_start();
                 `;
             });
 
-            cartPage.innerHTML += `
+            cartSum.innerHTML += `
                 <div id="cartTotal" class="m-3 p-3 border rounded d-flex flex-row justify-content-center align-items-center gap-5">
                     <h2>
                         Suma: ${total.toFixed(2)} zł

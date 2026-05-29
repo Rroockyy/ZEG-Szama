@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Maj 28, 2026 at 09:16 PM
+-- Generation Time: Maj 29, 2026 at 06:44 PM
 -- Wersja serwera: 10.4.32-MariaDB
 -- Wersja PHP: 8.0.30
 
@@ -59,8 +59,7 @@ CREATE TABLE `kupony` (
 INSERT INTO `kupony` (`id`, `nazwa`, `cena`) VALUES
 (1, '2 hot-dogi', 10),
 (2, 'Bułka szynka + Bułka ser', 5),
-(3, 'Każdy rozmiar Tymbarków', 13),
-(4, 'Wszystkie tosty!', 3);
+(3, 'Każdy rozmiar Tymbarków', 13);
 
 -- --------------------------------------------------------
 
@@ -83,14 +82,10 @@ INSERT INTO `kupony_produkty` (`id`, `id_kuponu`, `id_produktu`) VALUES
 (2, 1, 11),
 (3, 2, 4),
 (4, 2, 5),
-(5, 3, 17),
-(6, 3, 19),
-(7, 3, 20),
-(8, 3, 21),
-(9, 4, 15),
-(10, 4, 16),
-(11, 4, 14),
-(12, 4, 13);
+(17, 3, 17),
+(18, 3, 19),
+(19, 3, 20),
+(20, 3, 21);
 
 -- --------------------------------------------------------
 
@@ -139,7 +134,11 @@ INSERT INTO `produkty` (`id`, `nazwa`, `skład`, `cena`, `typ`, `zdjecie`) VALUE
 (27, 'Cappuccino', '', 3.5, 6, 'k5.jpg'),
 (28, 'Late Macchiato', '', 3.5, 6, 'k6.jpg'),
 (29, 'Double Shot Espresso', '', 1.5, 6, 'k7.jpg'),
-(30, 'BBQ', '', 1, 5, 's1.jpg');
+(30, 'BBQ', '', 1, 5, 's1.jpg'),
+(33, 'Czosnkowy', '', 1, 5, 's2.jpg'),
+(34, 'Ketchup', '', 1, 5, 's3.jpg'),
+(35, 'Musztarda', '', 1, 5, 's4.jpg'),
+(36, 'Majonez', '', 1, 5, 's5.jpg');
 
 -- --------------------------------------------------------
 
@@ -205,7 +204,7 @@ CREATE TABLE `uzytkownicy` (
 
 INSERT INTO `uzytkownicy` (`id`, `nazwa_uzytkownika`, `Email`, `telefon`, `haslo`, `dostep`) VALUES
 (8, 'Rogal', 'rogal@gmail.pl', '123456789', '$2y$10$h1GlFED/PV.7cJJDJTl5ZeLPTYoc/Uh3HqorCw/6IkQTFEOzjbNre', 2),
-(20, 'Gulnul', 'pewnegorazukinga@gmail.com', '987654321', '$2y$10$gqdsTwA9zB7CSLmTnGDVDOKfOUs8YVeJcwxAP7BpwMxzvusC2k/Zq', 2);
+(23, 'Gulnul', 'pewnegorazukinga@gmail.com', '000111222', '$2y$10$UYbZ7cyW4FrFtMOUspxg7edmEm2LaJsHV57AJpf.2SfHT3VTDcNCG', 1);
 
 -- --------------------------------------------------------
 
@@ -227,7 +226,8 @@ CREATE TABLE `zamowienia` (
 --
 
 INSERT INTO `zamowienia` (`numer_zamowienia`, `uzytkownik_id`, `data`, `status`, `metoda_platnosci`, `cena`) VALUES
-(41, 8, '2026-05-28 00:46:36', 1, 'Karta przy odbiorze', 3.00);
+(42, 8, '2026-05-28 21:44:23', 3, 'BLIK', 19.00),
+(43, 8, '2026-05-29 18:44:05', 1, 'Gotówka przy odbiorze', 13.00);
 
 -- --------------------------------------------------------
 
@@ -247,10 +247,14 @@ CREATE TABLE `zamowienia_produkty` (
 --
 
 INSERT INTO `zamowienia_produkty` (`id`, `numer_zamowienia`, `ilosc`, `produkt_id`) VALUES
-(1, 41, 1, 15),
-(2, 41, 1, 16),
-(3, 41, 1, 14),
-(4, 41, 1, 13);
+(5, 42, 3, 4),
+(6, 42, 1, 4),
+(7, 42, 1, 5),
+(8, 42, 1, 4),
+(9, 42, 1, 5),
+(10, 43, 2, 4),
+(11, 43, 1, 5),
+(12, 43, 1, 6);
 
 --
 -- Indeksy dla zrzutów tabel
@@ -349,13 +353,13 @@ ALTER TABLE `kupony`
 -- AUTO_INCREMENT for table `kupony_produkty`
 --
 ALTER TABLE `kupony_produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `produkty`
 --
 ALTER TABLE `produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=33;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=37;
 
 --
 -- AUTO_INCREMENT for table `status_zamowienia`
@@ -373,19 +377,19 @@ ALTER TABLE `typy_produktow`
 -- AUTO_INCREMENT for table `uzytkownicy`
 --
 ALTER TABLE `uzytkownicy`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `zamowienia`
 --
 ALTER TABLE `zamowienia`
-  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
+  MODIFY `numer_zamowienia` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=44;
 
 --
 -- AUTO_INCREMENT for table `zamowienia_produkty`
 --
 ALTER TABLE `zamowienia_produkty`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- Constraints for dumped tables
