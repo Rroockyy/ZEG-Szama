@@ -63,29 +63,29 @@ session_start();
         </div>
     </nav>
     <nav class="adminNav">
-        <div class="navItem">
+        <div class="navItem btn btn-danger">
             Produkty
             <div class="dropdown">
-                <div class="createProductNav">Stwórz nowy produkt</div>
-                <div class="deleteProductNav">Usuń produkt</div>
-                <div class="editProductNav">Edytuj produkt</div>
+                <div class="createProductNav btn btn-danger">Stwórz nowy produkt</div>
+                <div class="deleteProductNav btn btn-danger">Usuń produkt</div>
+                <div class="editProductNav btn btn-danger">Edytuj produkt</div>
             </div>
         </div>
 
-        <div class="navItem">
+        <div class="navItem btn btn-danger">
             Kupony
             <div class="dropdown">
-                <div class="createCouponNav">Stwórz nowy kupon</div>
-                <div class="deleteCouponNav">Usuń kupon</div>
-                <div class="editCouponNav">Edytuj kupon</div>
+                <div class="createCouponNav btn btn-danger">Stwórz nowy kupon</div>
+                <div class="deleteCouponNav btn btn-danger">Usuń kupon</div>
+                <div class="editCouponNav btn btn-danger">Edytuj kupon</div>
             </div>
         </div>
 
-        <div class="navItem">
+        <div class="navItem btn btn-danger">
             Zarządzanie
             <div class="dropdown">
-                <div class="manageOrdersNav">Zarządzaj zamówieniami</div>
-                <div class="manageUsersNav">Zarządzaj użytkownikami</div>
+                <div class="manageOrdersNav btn btn-danger">Zarządzaj zamówieniami</div>
+                <div class="manageUsersNav btn btn-danger">Zarządzaj użytkownikami</div>
             </div>
         </div>
     </nav>
@@ -626,7 +626,7 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
             $query = "SELECT uzytkownicy.id, uzytkownicy.nazwa_uzytkownika, uzytkownicy.Email, uzytkownicy.telefon, dostep.dostep FROM uzytkownicy join dostep on uzytkownicy.dostep = dostep.id ORDER BY uzytkownicy.id ASC";
             $users = mysqli_query($conn, $query);
             while($row = mysqli_fetch_array($users)) {
-                echo "<div class='card mb-2 p-2 w-100 d-flex flex-row align-items-center justify-content-between'>";
+                echo "<div class='card mb-2 p-2 w-100 d-flex flex-row flex-wrap align-items-center justify-content-between'>";
                 echo "<div>";
                     echo "<strong>{$row['nazwa_uzytkownika']}</strong><br>";
                     echo "Email: {$row['Email']}<br>";
@@ -634,19 +634,21 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
                     echo "Dostęp: " . $row['dostep'];
                     echo "</div>";
 
-                    if(intval($row['id']) !== intval($_SESSION['user_id'])) {
-                        echo "<form method='POST' action=''>";
-                        echo "<input type='hidden' name='changeUserStatus' value='{$row['id']}'>";
-                        echo "<button type='submit' name='changeUserStatusBtn' class='btn btn-primary m-2'>Zmień status na " . ($row['dostep'] == "użytkownik" ? "administrator" : "użytkownik") . "</button>";
-                        echo "</form>";
-                    }
-                    
-                    if ($row['dostep'] != "administrator") {
-                        echo "<form method='POST' action='' onsubmit='return confirm(\"Na pewno chcesz usunąć tego użytkownika?\")'>";
-                        echo "<input type='hidden' name='deleteUserId' value='{$row['id']}'>";
-                        echo "<button type='submit' name='deleteUserBtn' class='btn btn-danger'>Usuń</button>";
-                        echo "</form>";
-                    }
+                    echo "<div class='d-flex flex-column flex-md-row gap-2'>";
+                        if(intval($row['id']) !== intval($_SESSION['user_id'])) {
+                            echo "<form method='POST' action=''>";
+                            echo "<input type='hidden' name='changeUserStatus' value='{$row['id']}'>";
+                            echo "<button type='submit' name='changeUserStatusBtn' class='btn btn-primary m-2'>Zmień status na " . ($row['dostep'] == "użytkownik" ? "administrator" : "użytkownik") . "</button>";
+                            echo "</form>";
+                        }
+                        
+                        if ($row['dostep'] != "administrator") {
+                            echo "<form method='POST' action='' onsubmit='return confirm(\"Na pewno chcesz usunąć tego użytkownika?\")'>";
+                            echo "<input type='hidden' name='deleteUserId' value='{$row['id']}'>";
+                            echo "<button type='submit' name='deleteUserBtn' class='btn btn-danger'>Usuń</button>";
+                            echo "</form>";
+                        }
+                    echo "</div>";
                 echo "</div>";
             }
         ?>

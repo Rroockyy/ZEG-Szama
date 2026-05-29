@@ -14,7 +14,7 @@ session_start();
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 </head>
 <body class="min-vh-100 d-flex flex-column">
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top shadow-sm"> 
+    <nav class="navigation navbar navbar-expand-lg navbar-light sticky-top shadow-sm"> 
         <a href="menu.php" class="navbar-brand"><img src="src/zegowska_szama-logo.png" id="logo" alt="logo" class="img-fluid"></a>
 
         <button class="navbar-toggler bg-white m-2" data-bs-toggle="collapse" data-bs-target="#navbarNav" >
@@ -79,6 +79,15 @@ session_start();
                                 echo '<h5 class="card-title">' . htmlspecialchars($row['nazwa']) . '</h5>';
                                 echo '<p class="card-text">' . htmlspecialchars($row['skład']) . '</p>';
                                 echo '<p class="card-text"><strong>Cena: ' . number_format($row['cena'], 2) . ' zł</strong></p>';
+                                echo "<button 
+                                    class='addToCartBtn btn btn-danger'
+                                    data-id='$row[id]'
+                                    data-name='$row[nazwa]'
+                                    data-price='$row[cena]'
+                                    data-image='$row[zdjecie]'
+                                    >
+                                    Dodaj
+                                </button>";
                             echo '</div>';
                         echo '</div>';
                     echo '</div>';

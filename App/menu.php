@@ -62,7 +62,7 @@ session_start();
             </div>
         </div>
     </nav>
-    <main class="flex-grow-1 d-flex align-items-center flex-column">
+    <main class="flex-grow-1 d-flex align-items-center flex-column overflow-x-hidden">
         <div class="d-flex justify-content-around w-100 mt-3 flex-wrap">
             <?php
                 $query = "SELECT typy_produktow.typ, produkty.zdjecie FROM typy_produktow JOIN produkty ON typy_produktow.id = produkty.typ WHERE produkty.zdjecie LIKE '_1.jpg' ORDER BY typy_produktow.id ASC";

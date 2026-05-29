@@ -117,8 +117,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
             </div>
         </div>
     </nav>
-    <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-row">
-        <div id="SignIn" class="m-5">
+    <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-column-reverse flex-md-row">
+        <div id="SignIn" class="">
             <!-- wyswieta errory -->
             <?php if ($message !== '') {
                 echo '<div class="alert alert-warning" role="alert">' . htmlspecialchars($message) . '</div>';
@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $conn) {
         <div class="m-5">
             <h1>Zamawiaj szybciej z kontem ZEG SZAMA!</h1>
             <ul>
-                <li>Zapisz ostatnie zamówienia</li>
+                <li>Zamawiaj szybko i wygodnie</li>
                 <li>Otrzymuj dostęp do rabatów i promocji</li>
             </ul>
         </div>

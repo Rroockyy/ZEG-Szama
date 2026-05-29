@@ -64,7 +64,7 @@ session_start();
     </nav>
     <main class="flex-grow-1 d-flex align-items-center flex-column flex-fill">
         <h1 class="mt-5">O nas</h1>
-        <p class="mt-3 text-center w-75 fs-3">
+        <p class="mt-3 text-center w-75 textWall fs">
             Witaj w Zegowskiej Szamie! Najlepszym sklepiku szkolnym w Polsce! Nie często spotyka się sklepik szkolny ze stroną internetową, ale my lubimy być inni (i lepsi). W naszej ofercie znajdziesz szeroki wybór pysznych przekąsek, napojów i słodyczy, które zaspokoją Twoje szkolne zachcianki. Nasz sklepik to nie tylko miejsce, gdzie możesz kupić coś smacznego, ale także przestrzeń, gdzie możesz się spotkać z przyjaciółmi i spędzić miło czas podczas przerw. Dbamy o to, aby nasze produkty były zawsze świeże i smaczne, a nasza obsługa była szybka i przyjazna. Zapraszamy do odwiedzenia Zegowskiej Szamy - miejsca, gdzie smak i przyjemność idą w parze!
         </p>
         <p>
