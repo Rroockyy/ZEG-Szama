@@ -104,6 +104,8 @@ footer{
 }
 
 .itemsType{
+    min-width: 150px;
+    min-height: 150px;
     border: 1px solid black;
     border-radius: 10px;
     overflow: hidden;
@@ -111,6 +113,7 @@ footer{
     height: 10vw;
     font-size: larger;
     font-weight: bold;
+    margin: 10px;
 }
 
 .itemsType:hover, .productBox:hover{
@@ -147,13 +150,19 @@ a div.itemsType{
     margin-bottom: 20px;
     border-radius: 10px;
     overflow: hidden;
+    min-width: 150px;
+    min-height: 150px;
 }
 
 .productBox > img{
-    max-height: 150px;
+    height: 30%;
+    max-width: 30%;
 }
 
 .bestSeller{
+    padding: 10px;
+    min-width: 300px;
+    min-height: 300px;
     border: #E01721 2px solid;
     background-color: rgb(255, 190, 190);
     width: 20vw;
@@ -169,13 +178,9 @@ a div.itemsType{
 }
 
 .addToCartBtn{
-    background-color: rgb(255, 134, 134);
-    color: white;
-    border: red solid;
-    border-radius: 10px;
     margin-top: 10px;
     width: 90%;
-    height: 30px;
+    height: 40px;
 }
 
 .couponBox{

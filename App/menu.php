@@ -63,7 +63,7 @@ session_start();
         </div>
     </nav>
     <main class="flex-grow-1 d-flex align-items-center flex-column">
-        <div class="d-flex justify-content-around w-100 mt-3">
+        <div class="d-flex justify-content-around w-100 mt-3 flex-wrap">
             <?php
                 $query = "SELECT typy_produktow.typ, produkty.zdjecie FROM typy_produktow JOIN produkty ON typy_produktow.id = produkty.typ WHERE produkty.zdjecie LIKE '_1.jpg' ORDER BY typy_produktow.id ASC";
                 $types = mysqli_query($conn, $query);
@@ -99,13 +99,13 @@ session_start();
                             echo "<span>$row2[nazwa]</span>";
                             echo "<span>$row2[cena]zł</span>";
                             echo "<button 
-                                    class='addToCartBtn'
+                                    class='addToCartBtn btn btn-danger'
                                     data-id='$row2[id]'
                                     data-name='$row2[nazwa]'
                                     data-price='$row2[cena]'
                                     data-image='$row2[zdjecie]'
                                     >
-                                    Dodaj do koszyka
+                                    Dodaj
                                 </button>";
                             echo "</div>";
                         }
