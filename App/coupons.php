@@ -62,7 +62,7 @@ session_start();
             </div>
         </div>
     </nav>
-    <main class="flex-grow-1 d-flex align-items-center justify-content-center flex-column flex-fill">
+    <main class="flex-grow-1 d-flex align-items-center flex-column overflow-x-hidden justify-content-md-center">
         <?php
             if (!isset($_SESSION['logged_in'])) {
                 echo '<div class="alert alert-danger mt-5" role="alert">Musisz być zalogowany, aby zobaczyć kupony.<br><sub><a href="signIn.php" id="LogInAccExistHref" class="m-2">Zarejestruj się</a></sub><sub><a href="logIn.php" id="LogInAccExistHref" class="m-2">Zaloguj się</a></sub></div>';
@@ -90,14 +90,14 @@ session_start();
                         echo '</div>';
                         echo "<h3>$row[nazwa]</h3>za jedyne $row[cena]zł!";
                         echo "<button 
-                                    class='addToCartBtn'
+                                    class='addToCartBtn btn btn-danger'
                                     data-id='$row[id]'
                                     data-products='$row[produkty_ids]'
                                     data-name='$row[nazwa]'
                                     data-price='$row[cena]'
                                     data-image='$row[zdjecia]'
                                 >
-                                Dodaj do koszyka
+                                Dodaj
                             </button>";
                         echo '</div>';
                     }
