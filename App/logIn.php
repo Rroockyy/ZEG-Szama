@@ -122,7 +122,7 @@
     </nav>
     <main class="flex-grow-1 d-flex justify-content-center align-items-center flex-column">
         <img src="src/zeg.png" alt="logo zegu" id="zeg-background"> 
-        <div id="LogIn" class="m-5">
+        <div id="LogIn" class="my-3">
             <?php
                 if ($message !== '') {
                     echo '<div class="alert alert-warning">' .
