@@ -595,13 +595,82 @@ if (isset($_GET['categoryFilter']) && $_GET['categoryFilter'] != '') {
     <div id="manageUsers" class="adminPanelSection d-flex flex-column align-items-center d-none card p-4 shadow bg-light rounded">
         <h2 class="mb-4">Zarządzaj użytkownikami</h2>
         <?php
-            if(isset($_POST['deleteUserBtn'])){
-                $userIdToDelete = intval($_POST['deleteUserId']);
 
-                $stmt = mysqli_prepare($conn, "DELETE FROM uzytkownicy WHERE id = ?");
+            if(isset($_POST['deleteUserBtn'])){
+
+                $userIdToDelete = intval($_POST['deleteUserId']);
+                $deleteOrders = isset($_POST['deleteOrders']) ? intval($_POST['deleteOrders']) : 0;
+
+                $stmt = mysqli_prepare($conn,
+                    "SELECT COUNT(*) FROM zamowienia WHERE uzytkownik_id = ?"
+                );
+
                 mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
                 mysqli_stmt_execute($stmt);
+                mysqli_stmt_bind_result($stmt, $orderCount);
+                mysqli_stmt_fetch($stmt);
                 mysqli_stmt_close($stmt);
+
+                if($orderCount > 0 && !$deleteOrders){
+                    echo "
+                    <script>
+                        if(confirm('Ten użytkownik ma zamówienia. Czy chcesz usunąć również wszystkie jego zamówienia?')){
+                            
+                            let form = document.createElement('form');
+                            form.method='POST';
+
+                            form.innerHTML = `
+                                <input type='hidden' name='deleteUserId' value='{$userIdToDelete}'>
+                                <input type='hidden' name='deleteOrders' value='1'>
+                                <input type='hidden' name='deleteUserBtn' value='1'>
+                            `;
+
+                            document.body.appendChild(form);
+                            form.submit();
+
+                        } else {
+                            alert('Użytkownik nie został usunięty.');
+                        }
+                    </script>
+                    ";
+                }
+                else{
+                    if($orderCount > 0){
+
+                        $deleteProductsQuery = "
+                        DELETE zp
+                        FROM zamowienia_produkty zp
+                        JOIN zamowienia z
+                        ON zp.numer_zamowienia = z.numer_zamowienia
+                        WHERE z.uzytkownik_id = ?
+                        ";
+
+                        $stmt = mysqli_prepare($conn, $deleteProductsQuery);
+                        mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
+                        mysqli_stmt_execute($stmt);
+                        mysqli_stmt_close($stmt);
+
+                        $stmt = mysqli_prepare(
+                            $conn,
+                            "DELETE FROM zamowienia WHERE uzytkownik_id = ?"
+                        );
+
+                        mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
+                        mysqli_stmt_execute($stmt);
+                        mysqli_stmt_close($stmt);
+                    }
+
+                    $stmt = mysqli_prepare(
+                        $conn,
+                        "DELETE FROM uzytkownicy WHERE id = ?"
+                    );
+
+                    mysqli_stmt_bind_param($stmt, "i", $userIdToDelete);
+                    mysqli_stmt_execute($stmt);
+                    mysqli_stmt_close($stmt);
+
+                    echo "<script>alert('Użytkownik został usunięty');</script>";
+                }
             }
 
             if(isset($_POST['changeUserStatusBtn'])) {

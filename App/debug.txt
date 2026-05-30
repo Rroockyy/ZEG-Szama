@@ -1,0 +1,8 @@
+Array
+(
+    [name] => Rogal
+    [phone] => 123456789
+    [email] => rogal@gmail.pl
+    [payment] => BLIK
+    [cart] => [{"id":"4","name":"Bułka Ser","price":3,"image":"b2.jpg","quantity":2}]
+)

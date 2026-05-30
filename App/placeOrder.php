@@ -34,6 +34,7 @@ foreach ($cart as $item) {
     $total += $item['price'] * $item['quantity'];
 }
 
+date_default_timezone_set('Europe/Warsaw');
 $date = date("Y-m-d H:i:s");
 $status = 1;
 $total = (float)$total;
